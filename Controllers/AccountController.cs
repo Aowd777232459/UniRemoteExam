@@ -47,7 +47,8 @@ public class AccountController : Controller
             return View();
         }
 
-        var loginOk = user != null && _passwords.Verify(user, password, out var needsRehash);
+        var needsRehash = false;
+        var loginOk = user != null && _passwords.Verify(user, password, out needsRehash);
         if (!loginOk || user == null)
         {
             if (user != null)

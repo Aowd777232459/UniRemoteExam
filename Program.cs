@@ -33,8 +33,11 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
     ?? throw new InvalidOperationException("ConnectionStrings:DefaultConnection غير موجود في الإعدادات.");
 
 builder.Services.AddDbContext<UniRemoteExamDbContext>(options =>
-    options.UseSqlServer(connectionString, sql => sql.EnableRetryOnFailure())
-        .UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
+    options.UseSqlServer(connectionString, sql =>
+    {
+        sql.EnableRetryOnFailure();
+        sql.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
+    }));
 builder.Services.AddScoped<SmtpEmailSender>();
 builder.Services.AddScoped<PasswordService>();
 builder.Services.AddScoped<ScoreCalculator>();
