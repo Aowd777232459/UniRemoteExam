@@ -55,7 +55,21 @@ jobs:
 
           grep '"status":"healthy"' health.json
           grep '"database":"connected"' health.json
-          curl --fail --silent http://127.0.0.1:5113/ | grep 'نظام الاختبارات'
+          curl --fail --silent --cookie-jar cookies.txt http://127.0.0.1:5113/ --output login.html
+          grep 'نظام الاختبارات' login.html
+
+          token="$(grep -oP 'name="__RequestVerificationToken"[^>]*value="\K[^"]+' login.html | head -n 1)"
+          test -n "$token"
+          curl --silent --show-error \
+            --cookie cookies.txt \
+            --cookie-jar cookies.txt \
+            --data-urlencode "email=admin@sanaau.edu.ye" \
+            --data-urlencode "password=Demo@12345" \
+            --data-urlencode "__RequestVerificationToken=$token" \
+            --dump-header login-headers.txt \
+            --output login-result.html \
+            http://127.0.0.1:5113/Account/Login
+          grep -i '^location: /Account/ChangePassword' login-headers.txt
 
       - name: Upload server package
         uses: actions/upload-artifact@v4
