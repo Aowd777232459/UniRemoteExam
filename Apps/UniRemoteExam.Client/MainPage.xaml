@@ -48,7 +48,7 @@
                 <VerticalStackLayout Spacing="16">
                     <Label Text="ربط التطبيق بالخادم" FontAttributes="Bold" FontSize="25" TextColor="{StaticResource TextPrimary}" HorizontalTextAlignment="Center" />
                     <Label Text="أدخل رابط النسخة المنشورة من النظام. يستخدم الجوال والكمبيوتر الخادم نفسه، ولذلك تظهر البيانات نفسها فور اتصال الجهاز بالشبكة." FontSize="14" LineHeight="1.6" TextColor="{StaticResource TextMuted}" HorizontalTextAlignment="Center" />
-                    <Entry x:Name="ServerUrlEntry" Placeholder="https://exam.example.com" Keyboard="Url" FlowDirection="LeftToRight" HorizontalTextAlignment="Left" ClearButtonVisibility="WhileEditing" />
+                    <Entry x:Name="ServerUrlEntry" Placeholder="https://exam.example.com" Keyboard="Url" FlowDirection="LeftToRight" HorizontalTextAlignment="Start" ClearButtonVisibility="WhileEditing" />
                     <Label x:Name="SettingsError" IsVisible="False" TextColor="#B42318" FontAttributes="Bold" FontSize="13" />
                     <Button Text="حفظ والاتصال" Clicked="OnSaveEndpointClicked" />
                     <Button x:Name="CancelSettingsButton" Text="إلغاء" Clicked="OnCancelSettingsClicked" BackgroundColor="#EEF7F3" TextColor="{StaticResource BrandPrimary}" />
