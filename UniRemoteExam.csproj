@@ -16,4 +16,12 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
+
+  <!-- Keep the nested .NET MAUI client as a separate project. -->
+  <ItemGroup>
+    <Compile Remove="Apps/**/*.cs" />
+    <Content Remove="Apps/**/*" />
+    <EmbeddedResource Remove="Apps/**/*" />
+    <None Remove="Apps/**/*" />
+  </ItemGroup>
 </Project>
