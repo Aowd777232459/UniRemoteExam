@@ -1,18 +1,17 @@
+using UniRemoteExam.Client.Services;
+
 namespace UniRemoteExam.Client;
 
 public partial class App : Application
 {
-    private readonly MainPage _mainPage;
-
-    public App(MainPage mainPage)
+    public App()
     {
         InitializeComponent();
-        _mainPage = mainPage;
     }
 
     protected override Window CreateWindow(IActivationState? activationState)
     {
-        var navigationPage = new NavigationPage(_mainPage)
+        var navigationPage = new NavigationPage(new MainPage(new ServerEndpointStore()))
         {
             BarBackgroundColor = Color.FromArgb("#073B31"),
             BarTextColor = Colors.White
@@ -20,7 +19,7 @@ public partial class App : Application
 
         return new Window(navigationPage)
         {
-            Title = "نظام الاختبارات الجامعي"
+            Title = "نظام الاختبارات الإلكترونية"
         };
     }
 }

@@ -2,7 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="UniRemoteExam.Client.MainPage"
-             Title="نظام الاختبارات الجامعي"
+             Title="نظام الاختبارات الإلكترونية"
              FlowDirection="RightToLeft"
              BackgroundColor="{StaticResource AppBackground}">
     <Grid RowDefinitions="Auto,*,Auto">
@@ -21,9 +21,7 @@
         </Border>
 
         <Grid Grid.Row="1">
-            <WebView x:Name="ServerWebView"
-                     Navigating="OnWebViewNavigating"
-                     Navigated="OnWebViewNavigated" />
+            <Grid x:Name="WebHost" />
             <Border x:Name="ConnectionMessage" IsVisible="False" Margin="24" Padding="26" Stroke="#E5EDF3" BackgroundColor="White" StrokeShape="RoundRectangle 24" HorizontalOptions="Center" VerticalOptions="Center" MaximumWidthRequest="520">
                 <VerticalStackLayout Spacing="14" HorizontalOptions="Center">
                     <Label Text="تعذر الاتصال بالخادم" FontAttributes="Bold" FontSize="24" TextColor="{StaticResource TextPrimary}" HorizontalTextAlignment="Center" />

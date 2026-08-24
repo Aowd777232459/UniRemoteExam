@@ -8,30 +8,71 @@ public partial class MainPage : ContentPage
     private readonly ServerEndpointStore _endpointStore;
     private readonly HttpClient _healthClient = new() { Timeout = TimeSpan.FromSeconds(10) };
     private Uri? _endpoint;
+    private WebView? _serverWebView;
     private bool _initialized;
+    private bool _startupReady;
 
     public MainPage(ServerEndpointStore endpointStore)
     {
-        InitializeComponent();
         _endpointStore = endpointStore;
-        Connectivity.Current.ConnectivityChanged += OnConnectivityChanged;
+        try
+        {
+            InitializeComponent();
+            _startupReady = true;
+        }
+        catch
+        {
+            Title = "نظام الاختبارات الإلكترونية";
+            BackgroundColor = Color.FromArgb("#F4F7FB");
+            Content = new VerticalStackLayout
+            {
+                Padding = new Thickness(28),
+                Spacing = 14,
+                VerticalOptions = LayoutOptions.Center,
+                Children =
+                {
+                    new Label
+                    {
+                        Text = "تعذر تهيئة واجهة التطبيق",
+                        FontSize = 23,
+                        FontAttributes = FontAttributes.Bold,
+                        HorizontalTextAlignment = TextAlignment.Center,
+                        TextColor = Color.FromArgb("#102A24")
+                    },
+                    new Label
+                    {
+                        Text = "أعد تشغيل التطبيق. إذا استمرت المشكلة ثبّت أحدث نسخة بعد إزالة النسخة السابقة.",
+                        FontSize = 15,
+                        HorizontalTextAlignment = TextAlignment.Center,
+                        TextColor = Color.FromArgb("#64748B")
+                    }
+                }
+            };
+        }
     }
 
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        if (_initialized) return;
+        if (!_startupReady || _initialized) return;
 
         _initialized = true;
-        _endpoint = _endpointStore.Get();
-        if (_endpoint is null)
+        try
         {
-            ShowSettings(required: true);
-            return;
-        }
+            _endpoint = _endpointStore.Get();
+            if (_endpoint is null)
+            {
+                ShowSettings(required: true);
+                return;
+            }
 
-        ServerUrlEntry.Text = _endpoint.AbsoluteUri;
-        await ConnectAsync();
+            ServerUrlEntry.Text = _endpoint.AbsoluteUri;
+            await ConnectAsync();
+        }
+        catch
+        {
+            ShowConnectionError("تعذر بدء الاتصال. افتح إعدادات الخادم وأعد حفظ الرابط.");
+        }
     }
 
     private async Task ConnectAsync()
@@ -39,12 +80,6 @@ public partial class MainPage : ContentPage
         if (_endpoint is null)
         {
             ShowSettings(required: true);
-            return;
-        }
-
-        if (Connectivity.Current.NetworkAccess != NetworkAccess.Internet)
-        {
-            ShowConnectionError("لا يوجد اتصال بالإنترنت حاليًا. سيعاود التطبيق الاتصال عند عودة الشبكة.");
             return;
         }
 
@@ -63,7 +98,7 @@ public partial class MainPage : ContentPage
 
             ConnectionMessage.IsVisible = false;
             SetStatus("متصل ومتزامن", "#16A34A");
-            ServerWebView.Source = _endpoint.AbsoluteUri;
+            EnsureWebView().Source = _endpoint.AbsoluteUri;
         }
         catch (TaskCanceledException)
         {
@@ -73,18 +108,25 @@ public partial class MainPage : ContentPage
         {
             ShowConnectionError("تعذر الوصول إلى الخادم. تأكد من صحة الرابط وشهادة HTTPS.");
         }
+        catch
+        {
+            ShowConnectionError("حدث خطأ أثناء الاتصال. تحقق من رابط الخادم ثم أعد المحاولة.");
+        }
         finally
         {
             SetBusy(false);
         }
     }
 
-    private async void OnConnectivityChanged(object? sender, ConnectivityChangedEventArgs e)
+    private WebView EnsureWebView()
     {
-        if (e.NetworkAccess == NetworkAccess.Internet)
-            await MainThread.InvokeOnMainThreadAsync(ConnectAsync);
-        else
-            MainThread.BeginInvokeOnMainThread(() => ShowConnectionError("انقطع اتصال الشبكة. لم تُفقد أي بيانات محفوظة على الخادم."));
+        if (_serverWebView is not null) return _serverWebView;
+
+        _serverWebView = new WebView();
+        _serverWebView.Navigating += OnWebViewNavigating;
+        _serverWebView.Navigated += OnWebViewNavigated;
+        WebHost.Children.Add(_serverWebView);
+        return _serverWebView;
     }
 
     private void OnWebViewNavigating(object? sender, WebNavigatingEventArgs e)
@@ -117,12 +159,12 @@ public partial class MainPage : ContentPage
 
     private void OnBackClicked(object? sender, EventArgs e)
     {
-        if (ServerWebView.CanGoBack) ServerWebView.GoBack();
+        if (_serverWebView?.CanGoBack == true) _serverWebView.GoBack();
     }
 
     private void OnHomeClicked(object? sender, EventArgs e)
     {
-        if (_endpoint is not null) ServerWebView.Source = _endpoint.AbsoluteUri;
+        if (_endpoint is not null) EnsureWebView().Source = _endpoint.AbsoluteUri;
     }
 
     private async void OnRefreshClicked(object? sender, EventArgs e)

@@ -14,7 +14,7 @@ permissions:
 jobs:
   build-android:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
     env:
       ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
       ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
@@ -50,7 +50,7 @@ jobs:
             echo "has_release_key=true" >> "$GITHUB_OUTPUT"
           else
             echo "has_release_key=false" >> "$GITHUB_OUTPUT"
-            echo "::warning::Signing secrets are missing; producing an installable debug-signed APK."
+            echo "::warning::Signing secrets are missing; producing an installable test-signed Release APK."
           fi
 
       - name: Restore Android app
@@ -74,20 +74,68 @@ jobs:
           test -n "$signed_apk" || { echo "Signed APK was not produced"; exit 1; }
           cp "$signed_apk" artifacts/android/UniRemoteExam-Android.apk
 
-      - name: Publish debug-signed APK
+      - name: Publish test-signed Release APK
         if: steps.signing.outputs.has_release_key != 'true'
         shell: bash
         run: |
+          keytool -genkeypair -noprompt \
+            -keystore "$RUNNER_TEMP/uniremoteexam-testing.keystore" \
+            -storepass uniremoteexam-testing \
+            -keypass uniremoteexam-testing \
+            -alias uniremoteexam-testing \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 3650 \
+            -dname "CN=UniRemoteExam Testing, O=Sana'a University, C=YE"
           dotnet publish Apps/UniRemoteExam.Client/UniRemoteExam.Client.csproj \
             -f net10.0-android \
-            -c Debug \
-            -p:AndroidPackageFormats=apk
+            -c Release \
+            -p:AndroidPackageFormats=apk \
+            -p:TrimMode=partial \
+            -p:AndroidKeyStore=true \
+            -p:AndroidSigningKeyStore="$RUNNER_TEMP/uniremoteexam-testing.keystore" \
+            -p:AndroidSigningKeyAlias=uniremoteexam-testing \
+            -p:AndroidSigningStorePass=uniremoteexam-testing \
+            -p:AndroidSigningKeyPass=uniremoteexam-testing
           mkdir -p artifacts/android
-          debug_apk="$(find Apps/UniRemoteExam.Client/bin/Debug/net10.0-android -type f -name '*-Signed.apk' -print -quit)"
-          test -n "$debug_apk" || { echo "Installable debug APK was not produced"; exit 1; }
-          cp "$debug_apk" artifacts/android/UniRemoteExam-Android.apk
+          signed_apk="$(find Apps/UniRemoteExam.Client/bin/Release/net10.0-android -type f -name '*-Signed.apk' -print -quit)"
+          test -n "$signed_apk" || { echo "Installable test-signed APK was not produced"; exit 1; }
+          cp "$signed_apk" artifacts/android/UniRemoteExam-Android.apk
+
+      - name: Verify APK signature and package
+        shell: bash
+        run: |
+          build_tools="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -n 1)"
+          "$build_tools/apksigner" verify --verbose artifacts/android/UniRemoteExam-Android.apk
+          "$build_tools/aapt" dump badging artifacts/android/UniRemoteExam-Android.apk | grep "package: name='ye.edu.sanaau.uniremoteexam'"
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Launch test on Android emulator
+        uses: ReactiveCircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d
+        with:
+          api-level: 35
+          arch: x86_64
+          target: google_apis
+          profile: pixel_2
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
+          script: |
+            adb install -r artifacts/android/UniRemoteExam-Android.apk
+            adb logcat -c
+            adb shell monkey -p ye.edu.sanaau.uniremoteexam -c android.intent.category.LAUNCHER 1
+            sleep 12
+            app_pid="$(adb shell pidof ye.edu.sanaau.uniremoteexam | tr -d '\r')"
+            test -n "$app_pid" || { adb logcat -d '*:E' | tail -n 300; exit 1; }
+            adb shell dumpsys activity activities | grep -q 'mResumedActivity.*ye.edu.sanaau.uniremoteexam'
+            adb exec-out screencap -p > artifacts/android/launch-smoke.png
 
       - name: Upload APK
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: UniRemoteExam-Android-APK
