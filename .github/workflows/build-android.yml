@@ -124,15 +124,7 @@ jobs:
           profile: pixel_2
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
-          script: |
-            adb install -r artifacts/android/UniRemoteExam-Android.apk
-            adb logcat -c
-            adb shell monkey -p ye.edu.sanaau.uniremoteexam -c android.intent.category.LAUNCHER 1
-            sleep 12
-            app_pid="$(adb shell pidof ye.edu.sanaau.uniremoteexam | tr -d '\r')"
-            test -n "$app_pid" || { adb logcat -d '*:E' | tail -n 300; exit 1; }
-            adb shell dumpsys activity activities | grep -q 'mResumedActivity.*ye.edu.sanaau.uniremoteexam'
-            adb exec-out screencap -p > artifacts/android/launch-smoke.png
+          script: bash .github/scripts/android-launch-smoke.sh
 
       - name: Upload APK
         if: always()
