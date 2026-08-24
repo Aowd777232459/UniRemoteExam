@@ -1,0 +1,24 @@
+@model UniRemoteExam.Areas.Student.ViewModels.StudentResultsVm
+@{
+    ViewData["Title"] = "نتائجي";
+}
+<div style="max-width:1150px;margin:24px auto;direction:rtl;padding:0 14px">
+    <div style="background:linear-gradient(135deg,#0b3a2e,#16725a);color:white;border-radius:26px;padding:26px;box-shadow:0 18px 40px rgba(11,58,46,.2)">
+        <h1 style="font-weight:950;margin:0">نتائج @Model.StudentName</h1>
+        <div style="opacity:.9;margin-top:8px">تعرض الدرجات المعتمدة كما ثُبتت وقت اعتماد الكنترول.</div>
+        <div class="d-flex gap-3 mt-3 flex-wrap"><span class="badge bg-light text-dark p-2">النتائج المعتمدة: @Model.CompletedCount</span><span class="badge bg-warning text-dark p-2">متوسط النسبة: @Model.AveragePercent%</span></div>
+    </div>
+    @if(TempData["Error"] != null){<div class="alert alert-danger mt-3">@TempData["Error"]</div>}
+    <div class="row g-3 mt-1">
+        @foreach(var r in Model.Rows){
+            <div class="col-lg-6"><div class="card border-0 shadow-sm rounded-4 h-100"><div class="card-body">
+                <div class="d-flex justify-content-between gap-2"><div><h4 class="fw-bold text-success">@r.ExamTitle</h4><div class="text-muted">@r.CourseName</div></div><span class="badge @(r.Passed==true?"bg-success":r.Passed==false?"bg-danger":"bg-warning text-dark") h-25">@(r.Passed==true?"ناجح":r.Passed==false?"راسب":"قيد التصحيح")</span></div>
+                @if(r.Passed.HasValue){
+                    <div class="row text-center g-2 mt-3"><div class="col-4"><div class="p-2 bg-light rounded-3"><b>@r.FinalScore / @r.MaximumScore</b><br/><small>الدرجة</small></div></div><div class="col-4"><div class="p-2 bg-light rounded-3"><b>@r.Percentage%</b><br/><small>النسبة</small></div></div><div class="col-4"><div class="p-2 bg-light rounded-3"><b>@r.PassPercentage%</b><br/><small>حد النجاح</small></div></div></div>
+                    @if(r.CanReview){<a class="btn btn-outline-success w-100 mt-3" href="/Student/Results/Review?attemptId=@r.AttemptId">مراجعة الإجابات</a>}
+                } else {<div class="alert alert-info mt-3 mb-0">تم التسليم والنتيجة قيد التصحيح.</div>}
+            </div></div></div>
+        }
+        @if(!Model.Rows.Any()){<div class="col-12"><div class="alert alert-light border text-center">لا توجد نتائج حتى الآن.</div></div>}
+    </div>
+</div>

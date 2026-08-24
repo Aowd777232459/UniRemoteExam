@@ -1,0 +1,336 @@
+@model UniRemoteExam.Data.Exam
+@using Microsoft.AspNetCore.Http
+@using UniRemoteExam.Services
+@{
+    ViewData["Title"] = "بدء الاختبار";
+
+    var attemptId = (int)ViewBag.AttemptId;
+    var q = (UniRemoteExam.Data.Question)ViewBag.CurrentQuestion;
+    var a = ViewBag.CurrentAnswer as UniRemoteExam.Data.AttemptAnswer;
+    var choices = ViewBag.Choices as List<UniRemoteExam.Data.QuestionChoice> ?? new();
+    var totalQuestions = (int)ViewBag.TotalQuestions;
+    var currentIndex = (int)ViewBag.CurrentIndex;
+    var confirmedCount = (int)ViewBag.ConfirmedCount;
+    var remainingSeconds = (int)ViewBag.RemainingSeconds;
+    var examRemainingSeconds = (int)ViewBag.ExamRemainingSeconds;
+    var hasQuestionLimit = q.TimeLimitSeconds is > 0;
+    var isLastQuestion = (bool)ViewBag.IsLastQuestion;
+
+    var studentName = Context.Session.GetString("FullName") ?? "الطالب";
+    var teacherName = Model.Teacher?.FullName ?? "غير محدد";
+    var nowText = YemenTime.ToLocal(DateTime.UtcNow).ToString("yyyy/MM/dd - hh:mm tt");
+    var inputName = $"q_{q.QuestionId}";
+    var textareaName = $"essay_{q.QuestionId}";
+    var questionTypeLabel = q.QuestionType switch
+    {
+        "MCQ" => "اختيار من متعدد",
+        "TF" => "صح / خطأ",
+        "Essay" => "مقالي",
+        _ => q.QuestionType
+    };
+}
+
+<style>
+    .lux-exam-page{max-width:1100px;margin:24px auto;direction:rtl;text-align:right;font-family:"Segoe UI",Tahoma,Arial,sans-serif}.lux-hero{background:radial-gradient(circle at top right,rgba(255,255,255,.14),transparent 24%),radial-gradient(circle at bottom left,rgba(202,164,74,.18),transparent 24%),linear-gradient(135deg,#0b3a2e 0%,#0f5a47 100%);color:#fff;border-radius:30px;box-shadow:0 22px 44px rgba(16,24,40,.15);padding:26px;margin-bottom:20px;border:1px solid rgba(255,255,255,.08)}.lux-hero-row{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;flex-wrap:wrap}.lux-hero-main{display:flex;gap:16px;align-items:center;flex-wrap:wrap}.lux-logo-wrap{background:#fff;border-radius:20px;padding:12px 16px;box-shadow:0 10px 22px rgba(0,0,0,.12)}.lux-logo-wrap img{height:84px;width:auto;display:block}.lux-badge{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.16);font-weight:800;font-size:13px;margin-bottom:12px}.lux-title{margin:0;font-size:2.15rem;font-weight:900;line-height:1.4}.lux-subtitle{margin:8px 0 0;color:rgba(255,255,255,.90);line-height:1.9;font-size:15px}.lux-session-box{min-width:260px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.14);border-radius:22px;padding:18px}.lux-session-label{font-size:13px;color:rgba(255,255,255,.82);margin-bottom:6px}.lux-session-title{font-size:1.55rem;font-weight:900}.lux-session-text{margin-top:8px;color:rgba(255,255,255,.86);line-height:1.8;font-size:14px}.lux-meta-grid,.lux-stats-grid,.lux-instructions-grid{display:grid;gap:14px;margin-bottom:18px}.lux-meta-grid{grid-template-columns:repeat(4,1fr)}.lux-stats-grid{grid-template-columns:repeat(3,1fr)}.lux-meta-card,.lux-stat-card,.lux-instructions,.lux-question-card,.lux-submit-panel{background:#fff;border:1px solid #e6eaf2;border-radius:24px;box-shadow:0 14px 28px rgba(16,24,40,.06)}.lux-meta-card,.lux-stat-card{padding:18px}.lux-meta-card.gold{background:#fffaf0;border-color:rgba(202,164,74,.28)}.lux-meta-card.green-soft{background:#f6fbf8;border-color:rgba(11,58,46,.12)}.lux-meta-label,.lux-stat-label{color:#6b7280;font-size:13px}.lux-meta-value,.lux-stat-value{margin-top:8px;color:#0b3a2e;font-weight:900}.lux-meta-value{font-size:1.2rem}.lux-meta-value.small{font-size:1.05rem}.lux-stat-value{font-size:2rem}.lux-instructions{padding:18px}.lux-section-title{font-size:1.35rem;font-weight:900;color:#0b3a2e;margin-bottom:12px}.lux-instructions-grid{grid-template-columns:repeat(2,1fr);margin-bottom:0}.lux-instruction-item{background:#fffdf7;border:1px solid rgba(202,164,74,.22);border-radius:16px;padding:13px 14px;color:#5b4a14;line-height:1.9;font-weight:700}.lux-question-card{overflow:hidden}.lux-question-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;padding:18px;border-bottom:1px solid #e6eaf2;background:linear-gradient(180deg,#ffffff 0%,#fbfcfe 100%)}.lux-question-main{display:flex;gap:12px;align-items:flex-start;flex:1}.lux-question-no{min-width:58px;height:58px;display:inline-flex;align-items:center;justify-content:center;border-radius:18px;background:rgba(11,58,46,.08);color:#0b3a2e;font-size:1.25rem;font-weight:900;box-shadow:inset 0 0 0 1px rgba(11,58,46,.05)}.lux-question-content{flex:1}.lux-question-title-box{background:#f8fafc;border:1px solid #e6eaf2;border-radius:16px;padding:14px 16px}.lux-question-title{margin:0;font-size:1.35rem;font-weight:900;color:#0b3a2e;line-height:1.9}.lux-question-tags{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}.lux-tag{display:inline-block;padding:8px 12px;border-radius:999px;background:#f6f8fb;border:1px solid #e6eaf2;color:#374151;font-weight:800}.lux-tag.gold{background:#fffaf0;border-color:rgba(202,164,74,.30);color:#7a5a12}.lux-question-status-panel{min-width:220px}.lux-timer-box{min-height:52px;padding:12px;border-radius:16px;background:#0b3a2e;color:#fff;font-weight:900;text-align:center;font-size:1.2rem}.lux-progress-box{margin-top:10px;text-align:center;background:#f8fafc;border:1px solid #e6eaf2;border-radius:14px;padding:10px;color:#0b3a2e;font-weight:900}.lux-question-body{padding:18px}.lux-choice-grid,.lux-tf-grid{display:grid;gap:12px}.lux-tf-grid{grid-template-columns:repeat(2,1fr)}.lux-choice-card{display:flex;gap:12px;align-items:flex-start;padding:15px 16px;border:1px solid #e6eaf2;border-radius:18px;background:#fff;cursor:pointer;font-weight:800;color:#111827;line-height:1.9;transition:.2s ease}.lux-choice-card:hover{border-color:rgba(11,58,46,.28);box-shadow:0 10px 18px rgba(16,24,40,.04);transform:translateY(-1px)}.lux-choice-card input[type=radio]{margin-top:4px;transform:scale(1.2);flex:0 0 auto}.lux-essay-box{background:#f8fafc;border:1px solid #e6eaf2;border-radius:18px;padding:14px}.lux-essay-label{font-weight:900;color:#0b3a2e;margin-bottom:10px;font-size:1.05rem}.lux-essay-textarea{width:100%;border:1px solid #d7e0eb;border-radius:16px;padding:14px;font-size:15px;line-height:1.9;outline:none;resize:vertical;background:#fff}.lux-essay-textarea:focus{border-color:rgba(11,58,46,.35);box-shadow:0 0 0 4px rgba(11,58,46,.06)}.lux-actions-row,.lux-submit-actions{display:flex;gap:12px;flex-wrap:wrap}.lux-actions-row{margin-top:18px}.lux-btn{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;border-radius:18px;font-weight:900;transition:.2s ease;border:0;cursor:pointer}.lux-btn:disabled{opacity:.65;cursor:not-allowed;transform:none!important}.lux-btn-outline,.lux-btn-primary{flex:1;min-width:180px;padding:15px 16px;font-size:16px}.lux-btn-outline{border:2px solid rgba(11,58,46,.22);background:#fff;color:#0b3a2e}.lux-btn-outline:hover{background:#f8fafc;transform:translateY(-1px)}.lux-btn-primary{background:linear-gradient(90deg,#0b3a2e,#0f5a47);color:#fff;box-shadow:0 12px 24px rgba(11,58,46,.16)}.lux-btn-primary:hover{transform:translateY(-1px);box-shadow:0 14px 28px rgba(11,58,46,.20)}.lux-alert{margin-top:14px;background:#fff7e6;border:1px solid rgba(202,164,74,.55);border-radius:16px;padding:12px 14px;color:#7a5a12;font-weight:800;line-height:1.8}.lux-submit-panel{margin-top:20px;padding:18px}.lux-submit-text{color:#6b7280;line-height:1.9;margin-bottom:16px}.lux-btn-submit-final{width:100%;padding:16px 18px;border-radius:20px;border:0;background:linear-gradient(90deg,#caa44a,#e8c77a);color:#1b1b1b;font-weight:900;font-size:1.15rem;box-shadow:0 14px 28px rgba(202,164,74,.22)}.lux-btn-submit-final:hover{transform:translateY(-1px);box-shadow:0 16px 30px rgba(202,164,74,.26)}@@media(max-width:1100px){.lux-meta-grid{grid-template-columns:repeat(2,1fr)}}@@media(max-width:860px){.lux-stats-grid,.lux-instructions-grid,.lux-tf-grid{grid-template-columns:1fr}.lux-question-head,.lux-hero-row,.lux-submit-actions{flex-direction:column}.lux-question-status-panel{min-width:100%}}@@media(max-width:640px){.lux-exam-page{margin:16px auto}.lux-meta-grid,.lux-stats-grid{grid-template-columns:1fr}.lux-title{font-size:1.5rem}.lux-question-title{font-size:1.05rem}.lux-actions-row{flex-direction:column}.lux-btn-outline,.lux-btn-primary{width:100%}}
+</style>
+
+<div class="lux-exam-page">
+    <div class="lux-hero">
+        <div class="lux-hero-row">
+            <div class="lux-hero-main">
+                <div class="lux-logo-wrap">
+                    <img src="/images/sanaa-university-logo.jpg" alt="شعار جامعة صنعاء" />
+                </div>
+                <div>
+                    <div class="lux-badge">جامعة صنعاء - نظام الاختبارات الإلكترونية</div>
+                    <h1 class="lux-title">@Model.Title</h1>
+                    <p class="lux-subtitle">يظهر سؤال واحد فقط. بعد التأكيد أو انتهاء الوقت لا يمكن الرجوع للسؤال.</p>
+                </div>
+            </div>
+            <div class="lux-session-box">
+                <div class="lux-session-label">حالة الجلسة</div>
+                <div class="lux-session-title">اختبار نشط</div>
+                <div class="lux-session-text" id="examTimerBox">جاري حساب المدة الكلية...</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="lux-meta-grid">
+        <div class="lux-meta-card"><div class="lux-meta-label">👨‍🎓 اسم الطالب</div><div class="lux-meta-value">@studentName</div></div>
+        <div class="lux-meta-card"><div class="lux-meta-label">👨‍🏫 اسم الدكتور</div><div class="lux-meta-value">@teacherName</div></div>
+        <div class="lux-meta-card gold"><div class="lux-meta-label">📚 المادة</div><div class="lux-meta-value">@(Model.Course?.Name ?? Model.CourseName ?? "غير محددة")</div></div>
+        <div class="lux-meta-card green-soft"><div class="lux-meta-label">📅 التاريخ والوقت</div><div class="lux-meta-value small">@nowText</div></div>
+    </div>
+
+    <div class="lux-stats-grid">
+        <div class="lux-stat-card"><div class="lux-stat-label">السؤال الحالي</div><div class="lux-stat-value">@currentIndex / @totalQuestions</div></div>
+        <div class="lux-stat-card"><div class="lux-stat-label">الإجابات المقفلة</div><div class="lux-stat-value" id="confirmedCountValue">@confirmedCount</div></div>
+        <div class="lux-stat-card"><div class="lux-stat-label">رقم المحاولة</div><div class="lux-stat-value">@attemptId</div></div>
+    </div>
+
+    <div class="lux-instructions">
+        <div class="lux-section-title">📌 تعليمات مهمة</div>
+        <div class="lux-instructions-grid">
+            <div class="lux-instruction-item">سيظهر لك سؤال واحد فقط في كل مرة.</div>
+            <div class="lux-instruction-item">عند انتهاء وقت السؤال سيتم قفله والانتقال للسؤال التالي.</div>
+            <div class="lux-instruction-item">بعد الضغط على التالي لا يمكنك الرجوع للسؤال السابق.</div>
+            <div class="lux-instruction-item">التحقق من الوقت يتم من السيرفر، حتى لو تم التلاعب بالمتصفح.</div>
+        </div>
+    </div>
+
+    <section class="lux-question-card" data-qid="@q.QuestionId" data-remaining="@remainingSeconds">
+        <div class="lux-question-head">
+            <div class="lux-question-main">
+                <div class="lux-question-no">@q.SortOrder</div>
+                <div class="lux-question-content">
+                    <div class="lux-question-title-box"><h2 class="lux-question-title">@q.Body</h2></div>
+                    <div class="lux-question-tags">
+                        <span class="lux-tag">النوع: @questionTypeLabel</span>
+                        <span class="lux-tag gold">الدرجة: @q.Points</span>
+                        <span class="lux-tag">الوقت: @(q.TimeLimitSeconds.HasValue && q.TimeLimitSeconds > 0 ? $"{q.TimeLimitSeconds} ثانية" : "بدون حد")</span>
+                    </div>
+                </div>
+            </div>
+            <div class="lux-question-status-panel">
+                <div id="timerBox" class="lux-timer-box">جاري حساب الوقت...</div>
+                <div class="lux-progress-box">السؤال @currentIndex من @totalQuestions</div>
+            </div>
+        </div>
+
+        <div class="lux-question-body">
+            @Html.AntiForgeryToken()
+
+            @if (q.QuestionType == "MCQ")
+            {
+                <div class="lux-choice-grid">
+                    @foreach (var c in choices)
+                    {
+                        var optionId = $"q_{q.QuestionId}_choice_{c.ChoiceId}";
+                        <label class="lux-choice-card" for="@optionId">
+                            <input id="@optionId" type="radio" name="@inputName" value="@c.ChoiceId" checked="@(a?.SelectedChoiceId == c.ChoiceId)" />
+                            <span>@c.ChoiceText</span>
+                        </label>
+                    }
+                </div>
+            }
+            else if (q.QuestionType == "TF")
+            {
+                var trueId = $"q_{q.QuestionId}_true";
+                var falseId = $"q_{q.QuestionId}_false";
+                <div class="lux-tf-grid">
+                    <label class="lux-choice-card" for="@trueId"><input id="@trueId" type="radio" name="@inputName" value="true" checked="@(a?.BoolAnswer == true)" /><span>صح</span></label>
+                    <label class="lux-choice-card" for="@falseId"><input id="@falseId" type="radio" name="@inputName" value="false" checked="@(a?.BoolAnswer == false)" /><span>خطأ</span></label>
+                </div>
+            }
+            else
+            {
+                <div class="lux-essay-box">
+                    <div class="lux-essay-label">✍️ الإجابة المقالية</div>
+                    <textarea name="@textareaName" rows="7" class="lux-essay-textarea" placeholder="اكتب إجابتك هنا بشكل أكاديمي ومنظم...">@(a?.EssayAnswer ?? "")</textarea>
+                </div>
+            }
+
+            <div class="lux-actions-row">
+                <button type="button" id="saveBtn" class="lux-btn lux-btn-outline" onclick="saveAnswer(false)">💾 حفظ مؤقت</button>
+                <button type="button" id="nextBtn" class="lux-btn lux-btn-primary" onclick="saveAnswer(true)">
+                    @(isLastQuestion ? "✅ تأكيد آخر سؤال وإنهاء الاختبار" : "✅ تأكيد والانتقال للسؤال التالي")
+                </button>
+            </div>
+
+            <div class="lux-alert" id="statusMessage">
+                تنبيه: إذا انتهى الوقت قبل الضغط على الزر، سيتم قفل السؤال تلقائيًا والانتقال للسؤال التالي.
+            </div>
+        </div>
+    </section>
+
+    <div class="lux-submit-panel">
+        <div class="lux-section-title">الإرسال النهائي</div>
+        <div class="lux-submit-text">سيتم إرسال الاختبار تلقائيًا بعد قفل آخر سؤال. يمكن استخدام الزر التالي فقط في الحالات الاستثنائية.</div>
+        <form method="post" action="/Student/Exams/Submit">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="attemptId" value="@attemptId" />
+            <button type="submit" class="lux-btn lux-btn-submit-final">🚀 إنهاء وإرسال الاختبار للكنترول</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    const attemptId = @attemptId;
+    const questionId = @q.QuestionId;
+    const examId = @Model.ExamId;
+    const inputName = "@inputName";
+    const essayName = "@textareaName";
+    let remaining = @remainingSeconds;
+    let examRemaining = @examRemainingSeconds;
+    const hasQuestionLimit = @(hasQuestionLimit ? "true" : "false");
+    let examTimerId = null;
+    let isBusy = false;
+    let timerId = null;
+
+    function tokenValue() {
+        const token = document.querySelector('input[name="__RequestVerificationToken"]');
+        return token ? token.value : "";
+    }
+
+    function setInputsDisabled(isDisabled) {
+        document.querySelectorAll('input[name="' + inputName + '"], textarea[name="' + essayName + '"]').forEach(function (el) {
+            el.disabled = isDisabled;
+        });
+        document.getElementById("saveBtn").disabled = isDisabled;
+        document.getElementById("nextBtn").disabled = isDisabled;
+    }
+
+    function collectAnswer() {
+        let selectedChoiceId = null;
+        let boolAnswer = null;
+        let essayAnswer = "";
+
+        const checked = document.querySelector('input[name="' + inputName + '"]:checked');
+        if (checked) {
+            if (checked.value === "true" || checked.value === "false") {
+                boolAnswer = checked.value === "true";
+            } else {
+                const parsed = parseInt(checked.value);
+                if (!isNaN(parsed)) selectedChoiceId = parsed;
+            }
+        }
+
+        const ta = document.querySelector('textarea[name="' + essayName + '"]');
+        if (ta) essayAnswer = ta.value ? ta.value.trim() : "";
+
+        return { selectedChoiceId, boolAnswer, essayAnswer };
+    }
+
+    async function saveAnswer(confirm) {
+        if (isBusy) return;
+        isBusy = true;
+
+        if (timerId) clearInterval(timerId);
+        setInputsDisabled(true);
+
+        const status = document.getElementById("statusMessage");
+        status.innerText = confirm ? "جاري قفل السؤال والانتقال..." : "جاري حفظ الإجابة...";
+
+        const answer = collectAnswer();
+        const form = new FormData();
+        form.append("__RequestVerificationToken", tokenValue());
+        form.append("attemptId", attemptId.toString());
+        form.append("questionId", questionId.toString());
+        if (answer.selectedChoiceId !== null) form.append("selectedChoiceId", answer.selectedChoiceId.toString());
+        if (answer.boolAnswer !== null) form.append("boolAnswer", answer.boolAnswer ? "true" : "false");
+        form.append("essayAnswer", answer.essayAnswer);
+        form.append("confirmed", confirm ? "true" : "false");
+
+        try {
+            const res = await fetch("/Student/Exams/SaveAnswer", { method: "POST", body: form });
+            if (!res.ok) {
+                const txt = await res.text();
+                status.innerText = txt || "حدث خطأ أثناء حفظ الإجابة.";
+                setInputsDisabled(false);
+                isBusy = false;
+                startTimer();
+                return;
+            }
+
+            const data = await res.json();
+            if (confirm || data.locked) {
+                window.location.href = data.nextUrl || ("/Student/Exams/Take/" + examId);
+                return;
+            }
+
+            status.innerText = "تم حفظ الإجابة مؤقتًا ✅";
+            setInputsDisabled(false);
+            isBusy = false;
+            startTimer();
+        } catch (err) {
+            console.error(err);
+            status.innerText = "حدث خطأ غير متوقع أثناء الاتصال بالسيرفر.";
+            setInputsDisabled(false);
+            isBusy = false;
+            startTimer();
+        }
+    }
+
+    function renderTimer() {
+        const timerBox = document.getElementById("timerBox");
+        if (!hasQuestionLimit) {
+            timerBox.innerText = "بدون حد زمني للسؤال";
+            return;
+        }
+        if (remaining <= 0) {
+            timerBox.innerText = "انتهى وقت السؤال";
+            return;
+        }
+        const m = Math.floor(remaining / 60);
+        const s = remaining % 60;
+        timerBox.innerText = "⏳ الوقت المتبقي: " + m + ":" + String(s).padStart(2, "0");
+    }
+
+    function startTimer() {
+        if (timerId) clearInterval(timerId);
+        renderTimer();
+        if (!hasQuestionLimit || remaining <= 0) return;
+
+        timerId = setInterval(function () {
+            remaining--;
+            renderTimer();
+            if (remaining <= 0) {
+                clearInterval(timerId);
+                document.getElementById("statusMessage").innerText = "انتهى وقت السؤال. سيتم قفله الآن.";
+                saveAnswer(true);
+            }
+        }, 1000);
+    }
+
+
+    function renderExamTimer() {
+        const box = document.getElementById("examTimerBox");
+        if (!box) return;
+        const h = Math.floor(examRemaining / 3600);
+        const m = Math.floor((examRemaining % 3600) / 60);
+        const sec = examRemaining % 60;
+        box.innerText = "المدة الكلية المتبقية: " + (h > 0 ? h + ":" : "") + String(m).padStart(2,"0") + ":" + String(sec).padStart(2,"0");
+    }
+
+    function startExamTimer() {
+        renderExamTimer();
+        if (examTimerId) clearInterval(examTimerId);
+        examTimerId = setInterval(function () {
+            examRemaining--;
+            renderExamTimer();
+            if (examRemaining <= 0) {
+                clearInterval(examTimerId);
+                const form = document.querySelector('form[action="/Student/Exams/Submit"]');
+                if (form) form.requestSubmit();
+                else window.location.reload();
+            }
+        }, 1000);
+    }
+    async function trackProctorEvent(type, details) {
+        try {
+            const form = new FormData();
+            form.append("__RequestVerificationToken", tokenValue());
+            form.append("attemptId", attemptId.toString());
+            form.append("questionId", questionId.toString());
+            form.append("eventType", type);
+            form.append("details", details || "");
+            await fetch("/Student/Exams/TrackEvent", { method: "POST", body: form, keepalive: true });
+        } catch (e) { console.warn("proctor event failed", e); }
+    }
+
+    document.addEventListener("visibilitychange", function () {
+        if (document.hidden) trackProctorEvent("TabHidden", "غادر الطالب صفحة الاختبار أو فتح تبويبًا آخر");
+        else trackProctorEvent("TabVisible", "عاد الطالب إلى صفحة الاختبار");
+    });
+    window.addEventListener("blur", function () { trackProctorEvent("WindowBlur", "فقدت نافذة الاختبار التركيز"); });
+    window.addEventListener("focus", function () { trackProctorEvent("WindowFocus", "عاد التركيز إلى نافذة الاختبار"); });
+    document.addEventListener("copy", function () { trackProctorEvent("CopyAttempt", "محاولة نسخ من صفحة الاختبار"); });
+    document.addEventListener("paste", function () { trackProctorEvent("PasteAttempt", "محاولة لصق داخل صفحة الاختبار"); });
+    document.addEventListener("contextmenu", function (e) { e.preventDefault(); trackProctorEvent("ContextMenu", "محاولة فتح زر الفأرة الأيمن"); });
+
+    document.addEventListener("DOMContentLoaded", function(){
+        startTimer();
+        startExamTimer();
+        trackProctorEvent("QuestionOpened", "فتح السؤال الحالي");
+    });
+</script>

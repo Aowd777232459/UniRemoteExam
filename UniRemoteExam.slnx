@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="UniRemoteExam.csproj" />
+  <Project Path="Apps/UniRemoteExam.Client/UniRemoteExam.Client.csproj" />
+</Solution>

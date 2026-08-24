@@ -1,0 +1,15 @@
+**/bin
+**/obj
+.git
+.github
+.vs
+artifacts
+*.user
+*.suo
+*.log
+*.bak
+*.pfx
+*.p12
+*.keystore
+*.jks
+appsettings.Production.json

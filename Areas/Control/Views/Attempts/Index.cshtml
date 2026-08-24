@@ -1,0 +1,275 @@
+@model IEnumerable<dynamic>
+@{
+    ViewData["Title"] = "الكنترول";
+}
+
+<style>
+    .ctrl-page {
+        max-width: 1200px;
+        margin: 24px auto;
+        direction: rtl;
+        text-align: right;
+        font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+    }
+
+    .ctrl-header {
+        background: radial-gradient(circle at top right, rgba(255,255,255,.14), transparent 24%), radial-gradient(circle at bottom left, rgba(202,164,74,.18), transparent 24%), linear-gradient(135deg,#0b3a2e 0%,#0f5a47 100%);
+        color: #fff;
+        border-radius: 28px;
+        box-shadow: 0 20px 40px rgba(16,24,40,.14);
+        padding: 24px;
+        margin-bottom: 20px;
+        border: 1px solid rgba(255,255,255,.08);
+    }
+
+    .ctrl-title {
+        margin: 0 0 8px;
+        font-size: 2rem;
+        font-weight: 900;
+    }
+
+    .ctrl-subtitle {
+        margin: 0;
+        color: rgba(255,255,255,.9);
+        line-height: 1.9;
+        font-size: 15px;
+    }
+
+    .ctrl-tools {
+        margin-top: 18px;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .ctrl-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        border-radius: 16px;
+        font-weight: 900;
+        padding: 13px 16px;
+        transition: .2s ease;
+        cursor: pointer;
+    }
+
+        .ctrl-btn.students {
+            border: 2px solid rgba(202,164,74,.55);
+            background: #fff;
+            color: #0b3a2e;
+        }
+
+            .ctrl-btn.students:hover {
+                background: #fffaf0;
+            }
+
+        .ctrl-btn.bulk {
+            border: 0;
+            background: linear-gradient(90deg,#0b3a2e,#0f5a47);
+            color: #fff;
+            box-shadow: 0 12px 24px rgba(11,58,46,.16);
+        }
+
+            .ctrl-btn.bulk:hover {
+                transform: translateY(-1px);
+            }
+
+    .ctrl-card {
+        background: #fff;
+        border: 1px solid #e6eaf2;
+        border-radius: 24px;
+        box-shadow: 0 14px 28px rgba(16,24,40,.06);
+        overflow: hidden;
+    }
+
+    .ctrl-card-head {
+        padding: 18px 20px;
+        border-bottom: 1px solid #e6eaf2;
+        background: linear-gradient(180deg,#ffffff 0%,#fbfcfe 100%);
+    }
+
+    .ctrl-card-title {
+        margin: 0;
+        font-size: 1.4rem;
+        font-weight: 900;
+        color: #0b3a2e;
+    }
+
+    .ctrl-card-sub {
+        margin-top: 6px;
+        color: #6b7280;
+        line-height: 1.8;
+    }
+
+    .ctrl-table-wrap {
+        overflow-x: auto;
+    }
+
+    .ctrl-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .ctrl-table th,
+        .ctrl-table td {
+            padding: 14px 12px;
+            border-bottom: 1px solid #eef2f7;
+            text-align: right;
+            vertical-align: top;
+        }
+
+        .ctrl-table th {
+            background: #f8fafc;
+            color: #0b3a2e;
+            font-weight: 900;
+        }
+
+        .ctrl-table tbody tr:hover {
+            background: #fcfcfd;
+        }
+
+    .ctrl-empty {
+        text-align: center;
+        color: #6b7280;
+        padding: 28px 20px;
+        line-height: 1.9;
+    }
+
+    .ctrl-status {
+        display: inline-block;
+        padding: 7px 12px;
+        border-radius: 999px;
+        font-weight: 900;
+        font-size: 13px;
+    }
+
+        .ctrl-status.submitted {
+            background: #fff7e6;
+            border: 1px solid rgba(202,164,74,.60);
+            color: #7a5a12;
+        }
+
+        .ctrl-status.closed {
+            background: #e8fff4;
+            border: 1px solid rgba(16,185,129,.35);
+            color: #0b3a2e;
+        }
+
+        .ctrl-status.other {
+            background: #f6f8fb;
+            border: 1px solid #e6eaf2;
+            color: #374151;
+        }
+
+    .ctrl-mini-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        padding: 10px 12px;
+        border-radius: 12px;
+        border: 2px solid rgba(11,58,46,.18);
+        background: #fff;
+        color: #0b3a2e;
+        font-weight: 900;
+        transition: .2s ease;
+    }
+
+        .ctrl-mini-btn:hover {
+            background: #f8fafc;
+        }
+
+    @@media (max-width: 700px) {
+        .ctrl-page {
+            margin: 16px auto;
+        }
+
+        .ctrl-tools {
+            flex-direction: column;
+        }
+
+        .ctrl-btn {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="ctrl-page">
+    <div class="ctrl-header">
+        <h1 class="ctrl-title">لوحة الكنترول</h1>
+        <p class="ctrl-subtitle">
+            من هنا يمكن متابعة محاولات الطلاب، إرسال النتائج بالجملة، والانتقال إلى واجهة إنشاء حسابات الطلاب.
+        </p>
+
+        <div class="ctrl-tools">
+            <a href="/Control/Students" class="ctrl-btn students">👨‍🎓 إضافة الطلاب</a>
+            <a href="/Control/Attempts/Bulk" class="ctrl-btn bulk">📤 إرسال النتائج بالجملة</a>
+        </div>
+    </div>
+
+    <div class="ctrl-card">
+        <div class="ctrl-card-head">
+            <h2 class="ctrl-card-title">محاولات الطلاب</h2>
+            <div class="ctrl-card-sub">
+                استعراض المحاولات الحالية وحالة التصحيح والإرسال.
+            </div>
+        </div>
+
+        @if (Model == null || !Model.Any())
+        {
+            <div class="ctrl-empty">
+                لا توجد محاولات متاحة حاليًا.
+            </div>
+        }
+        else
+        {
+            <div class="ctrl-table-wrap">
+                <table class="ctrl-table">
+                    <thead>
+                        <tr>
+                            <th>رقم المحاولة</th>
+                            <th>الطالب</th>
+                            <th>الاختبار</th>
+                            <th>الحالة</th>
+                            <th>تاريخ الإرسال</th>
+                            <th>إجراء</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            var status = (item?.Status ?? "").ToString();
+
+                            <tr>
+                                <td>@item.AttemptId</td>
+                                <td>@(item?.Student?.FullName ?? "—")</td>
+                                <td>@(item?.Exam?.Title ?? "—")</td>
+                                <td>
+                                    @if (status == "Submitted")
+                                    {
+                                        <span class="ctrl-status submitted">قيد التصحيح</span>
+                                    }
+                                    else if (status == "Closed")
+                                    {
+                                        <span class="ctrl-status closed">مغلق / معتمد</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="ctrl-status other">@status</span>
+                                    }
+                                </td>
+                                <td>@(item?.SubmittedAt?.ToString("yyyy/MM/dd hh:mm tt") ?? "—")</td>
+                                <td>
+                                    <a href="/Control/Attempts/Grade/@item.AttemptId" class="ctrl-mini-btn">
+                                        📝 تصحيح
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>

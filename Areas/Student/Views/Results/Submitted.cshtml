@@ -1,0 +1,17 @@
+@{
+    ViewData["Title"] = "حالة المحاولة";
+    bool canView = ViewBag.CanView ?? false;
+    bool canReview = ViewBag.CanReview ?? false;
+}
+<div style="max-width:760px;margin:40px auto;direction:rtl;text-align:center;padding:0 14px">
+    <div class="card border-0 shadow rounded-4"><div class="card-body p-5">
+        <div style="font-size:60px">@(canView ? "✅" : "⏳")</div>
+        <h2 class="fw-bold text-success">@ViewBag.ExamTitle</h2><div class="text-muted">@ViewBag.CourseName</div>
+        <div class="alert @(canView?"alert-success":"alert-info") mt-4">@ViewBag.Status</div>
+        @if(canView){
+            <h3 class="fw-bold">@ViewBag.Score من @ViewBag.Maximum</h3><div>النسبة: @ViewBag.Percentage% — @(ViewBag.Passed == true ? "ناجح" : "راسب")</div>
+            @if(canReview){<a class="btn btn-outline-success mt-3" href="/Student/Results/Review?attemptId=@ViewBag.AttemptId">مراجعة الإجابات</a>}
+        }
+        <a class="btn btn-success mt-3" href="/Student/Results">جميع النتائج</a>
+    </div></div>
+</div>

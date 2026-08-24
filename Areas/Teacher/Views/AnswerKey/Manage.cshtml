@@ -1,0 +1,179 @@
+@model UniRemoteExam.Data.Exam
+@{
+    ViewData["Title"] = "نموذج الإجابة";
+
+    var questions = ViewBag.Questions as List<UniRemoteExam.Data.Question> ?? new();
+    var choices = ViewBag.Choices as List<UniRemoteExam.Data.QuestionChoice> ?? new();
+    var keys = ViewBag.AnswerKeys as List<UniRemoteExam.Data.AnswerKeyItem> ?? new();
+    bool saved = ViewBag.Saved ?? false;
+
+    string TypeLabel(string t) => t == "MCQ" ? "اختيار متعدد" : (t == "TF" ? "صح / خطأ" : "مقالي");
+    string KeyStatus(UniRemoteExam.Data.Question q)
+    {
+        var key = keys.FirstOrDefault(k => k.QuestionId == q.QuestionId);
+        if (key == null) return "غير مكتمل";
+        if (q.QuestionType == "MCQ" && key.CorrectChoiceId.HasValue) return "مكتمل";
+        if (q.QuestionType == "TF" && key.CorrectBool.HasValue) return "مكتمل";
+        if (q.QuestionType == "Essay" && !string.IsNullOrWhiteSpace(key.ModelAnswer)) return "مكتمل";
+        return "غير مكتمل";
+    }
+
+    var completeCount = questions.Count(q => KeyStatus(q) == "مكتمل");
+}
+
+<div style="max-width:1150px;margin:24px auto;direction:rtl;text-align:right;padding:0 14px;">
+
+    @if (TempData["Error"] != null)
+    {
+        <div style="background:#fef2f2;border:1px solid #fecaca;color:#991b1b;border-radius:18px;padding:14px 16px;margin-bottom:16px;font-weight:900;line-height:1.8;">
+            @TempData["Error"]
+        </div>
+    }
+
+    @if (saved)
+    {
+        <div style="background:#ecfdf5;border:1px solid #bbf7d0;color:#166534;border-radius:18px;padding:14px 16px;margin-bottom:16px;font-weight:900;">
+            ✅ تم حفظ ورفع نموذج الإجابة بنجاح.
+        </div>
+    }
+
+    <div style="background:linear-gradient(135deg,#0b3a2e,#0f5a47);border-radius:26px;padding:26px;color:#fff;box-shadow:0 18px 40px rgba(11,58,46,.22);">
+        <div style="display:flex;justify-content:space-between;gap:14px;align-items:flex-start;flex-wrap:wrap;">
+            <div>
+                <div style="font-size:14px;font-weight:800;opacity:.9;margin-bottom:8px;">لوحة الدكتور - صفحة مستقلة</div>
+                <div style="font-size:30px;font-weight:900;line-height:1.4;">✅ نموذج الإجابة</div>
+                <div style="margin-top:8px;opacity:.95;line-height:1.8;">
+                    الاختبار: <b>@Model.Title</b><br />
+                    المادة: <b>@(Model.Course?.Name ?? Model.CourseName ?? "غير محددة")</b>
+                </div>
+            </div>
+
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                <a href="/Teacher/Exams/Edit/@Model.ExamId" style="text-decoration:none;padding:12px 16px;border-radius:14px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.18);color:#fff;font-weight:900;">
+                    ⬅ رجوع للأسئلة
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:16px;" class="answer-stats-grid">
+        <div style="background:#fff;border:1px solid #e7edf5;border-radius:18px;padding:16px;box-shadow:0 8px 22px rgba(15,23,42,.05);">
+            <div style="color:#6b7280;font-weight:800;">عدد الأسئلة</div>
+            <div style="font-size:28px;font-weight:900;color:#0b3a2e;margin-top:6px;">@questions.Count</div>
+        </div>
+        <div style="background:#fff;border:1px solid #e7edf5;border-radius:18px;padding:16px;box-shadow:0 8px 22px rgba(15,23,42,.05);">
+            <div style="color:#6b7280;font-weight:800;">الإجابات المكتملة</div>
+            <div style="font-size:28px;font-weight:900;color:#0f8b6d;margin-top:6px;">@completeCount</div>
+        </div>
+        <div style="background:#fff;border:1px solid #e7edf5;border-radius:18px;padding:16px;box-shadow:0 8px 22px rgba(15,23,42,.05);">
+            <div style="color:#6b7280;font-weight:800;">الناقص</div>
+            <div style="font-size:28px;font-weight:900;color:#b45309;margin-top:6px;">@(questions.Count - completeCount)</div>
+        </div>
+    </div>
+
+    <div style="background:#fff;border:1px solid #e7edf5;border-radius:24px;box-shadow:0 12px 28px rgba(15,23,42,.05);margin-top:18px;overflow:hidden;">
+        <div style="padding:18px 20px;border-bottom:1px solid #edf1f7;">
+            <div style="font-size:22px;font-weight:900;color:#0b3a2e;">تدوين جميع الإجابات</div>
+            <div style="color:#6b7280;margin-top:6px;line-height:1.8;">
+                هذه الصفحة منفصلة عن إنشاء الاختبار. بعد إضافة الأسئلة، يحدد الدكتور هنا الإجابات الصحيحة ثم يحفظها ويرفعها للنظام/الكنترول.
+            </div>
+        </div>
+
+        <div style="padding:18px;">
+            @if (!questions.Any())
+            {
+                <div style="background:#f8fafc;border:1px dashed #cfd8e3;border-radius:18px;padding:24px;text-align:center;color:#6b7280;font-weight:800;">
+                    لا توجد أسئلة بعد. ارجع إلى صفحة إنشاء الأسئلة أولًا.
+                </div>
+            }
+            else
+            {
+                <form method="post" action="/Teacher/AnswerKey/SaveAll">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="examId" value="@Model.ExamId" />
+
+                    @foreach (var q in questions.OrderBy(q => q.SortOrder))
+                    {
+                        var qChoices = choices.Where(c => c.QuestionId == q.QuestionId).OrderBy(c => c.SortOrder).ToList();
+                        var key = keys.FirstOrDefault(k => k.QuestionId == q.QuestionId);
+                        var status = KeyStatus(q);
+
+                        <div style="border:1px solid #e7edf5;border-radius:20px;padding:16px;margin-bottom:14px;background:linear-gradient(180deg,#fff,#fbfcfe);">
+                            <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start;">
+                                <div style="flex:1;">
+                                    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                                        <span style="font-size:18px;font-weight:900;color:#0b3a2e;">سؤال @q.SortOrder</span>
+                                        <span style="background:#f1f5f9;color:#334155;border-radius:999px;padding:5px 10px;font-size:12px;font-weight:900;">@TypeLabel(q.QuestionType)</span>
+                                    </div>
+                                    <div style="margin-top:10px;color:#111827;line-height:1.9;font-size:16px;">@q.Body</div>
+                                </div>
+
+                                <span style="border-radius:999px;padding:7px 11px;font-size:12px;font-weight:900;@(status == "مكتمل" ? "background:#dcfce7;color:#166534;" : "background:#fff7ed;color:#9a3412;")">
+                                    @(status == "مكتمل" ? "✅ مكتمل" : "⚠ غير مكتمل")
+                                </span>
+                            </div>
+
+                            <div style="margin-top:14px;padding-top:14px;border-top:1px dashed #e5e7eb;">
+                                @if (q.QuestionType == "MCQ")
+                                {
+                                    if (!qChoices.Any())
+                                    {
+                                        <div style="background:#fef2f2;border:1px solid #fecaca;color:#991b1b;border-radius:14px;padding:12px;font-weight:800;">
+                                            لا توجد خيارات لهذا السؤال. ارجع وعدّل السؤال.
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;" class="answer-options-grid">
+                                            @foreach (var c in qChoices)
+                                            {
+                                                <label style="display:flex;align-items:center;gap:8px;background:#f8fafc;border:1px solid #eef2f7;border-radius:14px;padding:11px 12px;cursor:pointer;">
+                                                    <input type="radio" name="correctChoiceId_@q.QuestionId" value="@c.ChoiceId" @(key?.CorrectChoiceId == c.ChoiceId ? "checked" : "") />
+                                                    <span>@c.SortOrder) @c.ChoiceText</span>
+                                                </label>
+                                            }
+                                        </div>
+                                    }
+                                }
+                                else if (q.QuestionType == "TF")
+                                {
+                                    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                                        <label style="display:flex;align-items:center;gap:8px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:14px;padding:11px 16px;cursor:pointer;font-weight:900;color:#166534;">
+                                            <input type="radio" name="correctBool_@q.QuestionId" value="true" @(key?.CorrectBool == true ? "checked" : "") />
+                                            صح
+                                        </label>
+                                        <label style="display:flex;align-items:center;gap:8px;background:#fff7ed;border:1px solid #fed7aa;border-radius:14px;padding:11px 16px;cursor:pointer;font-weight:900;color:#9a3412;">
+                                            <input type="radio" name="correctBool_@q.QuestionId" value="false" @(key?.CorrectBool == false ? "checked" : "") />
+                                            خطأ
+                                        </label>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <label style="display:block;margin-bottom:8px;font-weight:900;color:#0b3a2e;">الإجابة النموذجية / المعيار الذي يراه الكنترول</label>
+                                    <textarea name="modelAnswer_@q.QuestionId" rows="4" style="width:100%;border:1px solid #d8e2ee;border-radius:16px;padding:12px 14px;outline:none;line-height:1.8;">@(key?.ModelAnswer ?? "")</textarea>
+                                }
+                            </div>
+                        </div>
+                    }
+
+                    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:18px;">
+                        <button type="submit" style="flex:1;min-width:220px;border:0;padding:14px 16px;border-radius:16px;background:linear-gradient(90deg,#0b3a2e,#0f5a47);color:#fff;font-weight:900;cursor:pointer;">
+                            💾 حفظ ورفع نموذج الإجابة
+                        </button>
+                        <a href="/Teacher/Exams/Edit/@Model.ExamId" style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center;min-width:180px;padding:14px 16px;border-radius:16px;background:#f8fafc;border:1px solid #e7edf5;color:#0b3a2e;font-weight:900;">
+                            رجوع للاختبار
+                        </a>
+                    </div>
+                </form>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+@@media (max-width: 800px){
+    .answer-stats-grid{grid-template-columns:1fr !important;}
+    .answer-options-grid{grid-template-columns:1fr !important;}
+}
+</style>

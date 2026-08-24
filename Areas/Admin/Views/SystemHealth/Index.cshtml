@@ -1,0 +1,37 @@
+@model Dictionary<string,string>
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "جاهزية النظام";
+}
+
+<div class="production-page" dir="rtl">
+    <div class="pro-hero compact-hero">
+        <div>
+            <div class="eyebrow">تشغيل فعلي وخدمة جامعية</div>
+            <h2>لوحة جاهزية النظام</h2>
+            <p>صفحة فحص سريعة تساعد الإدارة قبل الاختبارات الرسمية على التأكد من اتصال قاعدة البيانات وسلامة البيانات الأساسية.</p>
+        </div>
+        <div class="hero-badge">🟢 مراقبة</div>
+    </div>
+
+    <div class="pro-grid-3">
+        @foreach (var item in Model)
+        {
+            <div class="pro-card metric-card">
+                <div class="metric-label">@item.Key</div>
+                <div class="metric-value small-value">@item.Value</div>
+            </div>
+        }
+    </div>
+
+    <div class="pro-card mt-4">
+        <h4 class="fw-bold mb-3">قائمة فحص قبل أي اختبار رسمي</h4>
+        <ol class="checklist">
+            <li>التأكد من أن قاعدة البيانات متصلة وأن عدد المستخدمين والاختبارات يظهر بشكل صحيح.</li>
+            <li>إنشاء نسخة احتياطية من قاعدة البيانات قبل فتح الاختبار للطلاب.</li>
+            <li>تجربة دخول حساب دكتور وطالب وكنترول قبل الموعد الرسمي.</li>
+            <li>التأكد من وقت بداية ونهاية الاختبار ومن نموذج الإجابة.</li>
+            <li>مراجعة طلبات النشر المعلقة وعدم ترك اختبار غير معتمد.</li>
+        </ol>
+    </div>
+</div>

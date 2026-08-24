@@ -1,0 +1,47 @@
+@model List<UniRemoteExam.Data.ProctorEvent>
+@{
+    ViewData["Title"] = "سجل مراقبة الطالب";
+}
+<div style="max-width:1100px;margin:24px auto;direction:rtl;text-align:right;">
+    <div style="background:#fff;border:1px solid #e7edf5;border-radius:22px;box-shadow:0 12px 28px rgba(15,23,42,.06);overflow:hidden;">
+        <div style="padding:18px 20px;border-bottom:1px solid #edf1f7;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center;">
+            <div>
+                <div style="font-size:24px;font-weight:900;color:#0b3a2e;">🛡️ سجل مراقبة محاولة الطالب</div>
+                <div style="color:#6b7280;margin-top:6px;">يعرض أحداث الخروج من الصفحة، فقدان التركيز، النسخ واللصق أثناء الاختبار.</div>
+            </div>
+            <a href="javascript:history.back()" style="text-decoration:none;padding:11px 16px;border-radius:14px;border:1px solid #d8e2ee;color:#0b3a2e;font-weight:900;">رجوع</a>
+        </div>
+        <div style="padding:18px;overflow:auto;">
+            @if (!Model.Any())
+            {
+                <div style="background:#f8fafc;border:1px solid #e7edf5;border-radius:16px;padding:18px;color:#6b7280;font-weight:800;">لا توجد أحداث مراقبة مسجلة لهذه المحاولة.</div>
+            }
+            else
+            {
+                <table style="width:100%;border-collapse:collapse;min-width:760px;">
+                    <thead>
+                        <tr style="background:#f8fafc;color:#0b3a2e;">
+                            <th style="padding:12px;border-bottom:1px solid #e7edf5;">الطالب</th>
+                            <th style="padding:12px;border-bottom:1px solid #e7edf5;">نوع الحدث</th>
+                            <th style="padding:12px;border-bottom:1px solid #e7edf5;">السؤال</th>
+                            <th style="padding:12px;border-bottom:1px solid #e7edf5;">التفاصيل</th>
+                            <th style="padding:12px;border-bottom:1px solid #e7edf5;">الوقت</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var e in Model)
+                    {
+                        <tr>
+                            <td style="padding:12px;border-bottom:1px solid #eef2f7;font-weight:800;">@e.Student?.FullName</td>
+                            <td style="padding:12px;border-bottom:1px solid #eef2f7;">@e.EventType</td>
+                            <td style="padding:12px;border-bottom:1px solid #eef2f7;">@(e.Question?.SortOrder.ToString() ?? "-")</td>
+                            <td style="padding:12px;border-bottom:1px solid #eef2f7;">@e.Details</td>
+                            <td style="padding:12px;border-bottom:1px solid #eef2f7;">@e.CreatedAt.ToLocalTime().ToString("yyyy/MM/dd HH:mm")</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+</div>

@@ -1,0 +1,99 @@
+@model UniRemoteExam.Areas.Admin.ViewModels.AdminSettingsVm
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "إعدادات النظام";
+}
+
+<style>
+    .settings-page { direction:rtl; text-align:right; }
+    .settings-actions { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px; }
+    .btn-settings { border:none; border-radius:15px; padding:11px 18px; font-weight:950; text-decoration:none; display:inline-block; cursor:pointer; }
+    .btn-green { background:#0f5132; color:#fff; }
+    .btn-light { background:#fff; color:#102a24; border:1px solid #e5ecef; }
+    .btn-red { background:#b42318; color:#fff; }
+    .settings-grid { display:grid; grid-template-columns:1.2fr .8fr; gap:22px; }
+    .settings-card { background:#fff; border:1px solid #e5ecef; border-radius:28px; padding:24px; box-shadow:0 18px 40px rgba(16,42,36,.07); position:relative; overflow:hidden; }
+    .settings-card::before { content:""; position:absolute; top:0; right:0; left:0; height:6px; background:linear-gradient(90deg,#0f5132,#198754,#b7791f); }
+    .form-label-admin { font-weight:950; color:#102a24; margin-bottom:8px; display:block; }
+    .form-control-admin { border:1px solid #dce3e8; border-radius:14px; padding:12px 13px; width:100%; font-weight:800; outline:none; background:#fff; }
+    .field { margin-bottom:18px; }
+    .hint { color:#64748b; font-size:13px; font-weight:800; margin-top:6px; line-height:1.7; }
+    .alert-success-admin { background:#e8f7ef; color:#0f5132; border-radius:18px; padding:14px 16px; font-weight:950; margin-bottom:18px; }
+    .preview-header { border-radius:24px; background:#f8fbfa; border:1px solid #e2ebe7; padding:20px; display:flex; gap:14px; align-items:center; }
+    .preview-logo { width:120px; height:70px; background:#fff; border:1px solid #e5ecef; border-radius:18px; padding:7px; object-fit:contain; }
+    .preview-title { font-weight:950; font-size:18px; color:#102a24; margin-bottom:5px; }
+    .preview-subtitle { color:#64748b; font-size:13px; font-weight:800; line-height:1.7; }
+    .check-row { display:flex; gap:10px; align-items:center; font-weight:900; color:#102a24; }
+    @@media(max-width:1000px){ .settings-grid{grid-template-columns:1fr;} }
+</style>
+
+<div class="settings-page">
+    <div class="settings-actions">
+        <a href="/Admin/Dashboard" class="btn-settings btn-green">رجوع للوحة المدير</a>
+        <a href="/Admin/Audit" class="btn-settings btn-light">سجل العمليات</a>
+        <a href="/Admin/Reports" class="btn-settings btn-light">التقارير</a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert-success-admin">@TempData["Success"]</div>
+    }
+
+    <div class="settings-grid">
+        <div class="settings-card">
+            <form method="post" action="/Admin/Settings">
+                @Html.AntiForgeryToken()
+
+                <div class="field">
+                    <label class="form-label-admin">اسم العميد / العنوان الرئيسي</label>
+                    <input name="DeanName" value="@Model.DeanName" class="form-control-admin" />
+                </div>
+
+                <div class="field">
+                    <label class="form-label-admin">النص الفرعي أعلى لوحة المدير</label>
+                    <input name="HeaderSubtitle" value="@Model.HeaderSubtitle" class="form-control-admin" />
+                </div>
+
+                <div class="field">
+                    <label class="form-label-admin">رابط الشعار</label>
+                    <input name="LogoUrl" value="@Model.LogoUrl" class="form-control-admin" />
+                    <div class="hint">يمكن استخدام رابط مباشر أو لاحقًا صورة داخل wwwroot.</div>
+                </div>
+
+                <div class="field">
+                    <label class="form-label-admin">نص الفوتر</label>
+                    <input name="FooterText" value="@Model.FooterText" class="form-control-admin" />
+                </div>
+
+                <div class="field check-row">
+                    <input type="checkbox" name="ShowSystemStatus" value="true" checked="@Model.ShowSystemStatus" />
+                    <span>إظهار عبارة النظام يعمل في أعلى الصفحة</span>
+                </div>
+
+                <div class="settings-actions">
+                    <button type="submit" class="btn-settings btn-green">حفظ الإعدادات</button>
+                </div>
+            </form>
+
+            <form method="post" action="/Admin/Settings/Reset">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn-settings btn-red">استعادة الافتراضي</button>
+            </form>
+        </div>
+
+        <div class="settings-card">
+            <h3 style="font-weight:950;margin-bottom:16px;color:#102a24">معاينة الهيدر</h3>
+            <div class="preview-header">
+                <img src="@Model.LogoUrl" class="preview-logo" alt="الشعار" />
+                <div>
+                    <div class="preview-title">@Model.DeanName</div>
+                    <div class="preview-subtitle">@Model.HeaderSubtitle</div>
+                </div>
+            </div>
+            <div class="hint" style="margin-top:16px">
+                هذه الإعدادات تُحفظ في جلسة المدير الحالية بدون تعديل قاعدة البيانات. إذا أردتها دائمة، نضيف جدول إعدادات لاحقًا.
+            </div>
+        </div>
+    </div>
+</div>

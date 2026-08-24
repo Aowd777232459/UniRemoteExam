@@ -1,0 +1,178 @@
+@model UniRemoteExam.Areas.Admin.ViewModels.ExamReportVm
+@{
+    ViewData["Title"] = $"تقرير اختبار: {Model.ExamTitle}";
+}
+
+<div class="container mt-4">
+
+    <div class="app-card p-4 mb-3">
+        <div class="d-flex justify-content-between align-items-start">
+            <div>
+                <h3 class="section-title mb-1">تقرير اختبار: <span class="text-primary">@Model.ExamTitle</span></h3>
+                <div class="small-muted">المادة: @Model.CourseName</div>
+                <div class="small-muted">الدرجة القصوى: <b>@Model.MaxScore</b></div>
+            </div>
+
+            <form method="get" action="/Admin/Reports/Exam/@Model.ExamId" class="d-flex gap-2">
+                <input type="hidden" name="id" value="@Model.ExamId" />
+                <input name="passPercent" type="number" min="0" max="100" value="@Model.PassPercent"
+                       class="form-control" style="max-width:120px;" />
+                <button class="btn btn-outline-primary">تحديث حد النجاح %</button>
+            </form>
+        </div>
+
+        <div class="mt-2 small-muted">
+            حد النجاح: <b>@Model.PassPercent%</b> = <b>@Model.PassMark</b> درجة
+        </div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="row g-3">
+        <div class="col-md-4">
+            <div class="app-card p-3">
+                <div class="small-muted">طلاب يمتحنون الآن (Started)</div>
+                <div class="section-title" style="font-size:26px">@Model.StartedCount</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="app-card p-3">
+                <div class="small-muted">بانتظار الكنترول (Submitted)</div>
+                <div class="section-title" style="font-size:26px">@Model.SubmittedCount</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="app-card p-3">
+                <div class="small-muted">نتائج معتمدة (Closed)</div>
+                <div class="section-title" style="font-size:26px">@Model.ClosedCount</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mt-1">
+        <div class="col-md-3">
+            <div class="app-card p-3">
+                <div class="small-muted">متوسط الدرجات</div>
+                <div class="section-title" style="font-size:22px">@Model.AvgScore</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="app-card p-3">
+                <div class="small-muted">أعلى درجة</div>
+                <div class="section-title" style="font-size:22px">@Model.MaxScoreAchieved</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="app-card p-3">
+                <div class="small-muted">أقل درجة</div>
+                <div class="section-title" style="font-size:22px">@Model.MinScoreAchieved</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="app-card p-3">
+                <div class="small-muted">نسبة النجاح</div>
+                <div class="section-title" style="font-size:22px">@Model.PassRatePercent%</div>
+                <div class="small-muted">ناجح: @Model.PassCount | راسب: @Model.FailCount</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOP 5 -->
+    <div class="app-card p-3 mt-3">
+        <h5 class="mb-2">TOP 5 أعلى درجات (Closed فقط)</h5>
+        @if (!Model.Top5.Any())
+        {
+            <div class="alert alert-info mb-0">لا توجد نتائج Closed بعد.</div>
+        }
+        else
+        {
+            <table class="table table-sm table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>الطالب</th>
+                        <th>الإيميل</th>
+                        <th>Auto</th>
+                        <th>Manual</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var r in Model.Top5)
+                {
+                    <tr>
+                        <td>@r.StudentName</td>
+                        <td>@r.StudentEmail</td>
+                        <td>@r.AutoScore</td>
+                        <td>@r.ManualScore</td>
+                        <td class="fw-bold text-success">@r.TotalScore</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        }
+    </div>
+
+    <!-- جدول النتائج -->
+    <div class="app-card p-3 mt-3">
+        <h5 class="mb-2">جميع النتائج</h5>
+
+        @if (!Model.Rows.Any())
+        {
+            <div class="alert alert-info mb-0">لا توجد محاولات لهذا الاختبار.</div>
+        }
+        else
+        {
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>AttemptId</th>
+                        <th>الطالب</th>
+                        <th>الإيميل</th>
+                        <th>Status</th>
+                        <th>Auto</th>
+                        <th>Manual</th>
+                        <th>Total</th>
+                        <th>نجاح؟</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var r in Model.Rows)
+                {
+                    var isPass = (r.Status == "Closed" && r.TotalScore >= Model.PassMark);
+                    <tr>
+                        <td>@r.AttemptId</td>
+                        <td>@r.StudentName</td>
+                        <td>@r.StudentEmail</td>
+                        <td>
+                            <span class="badge @(r.Status=="Closed" ? "bg-success" : (r.Status=="Submitted" ? "bg-warning text-dark" : "bg-secondary"))">
+                                @r.Status
+                            </span>
+                        </td>
+                        <td>@r.AutoScore</td>
+                        <td>@r.ManualScore</td>
+                        <td class="fw-bold">@r.TotalScore</td>
+                        <td>
+                            @if (r.Status != "Closed")
+                            {
+                                <span class="text-muted">-</span>
+                            }
+                            else if (isPass)
+                            {
+                                <span class="badge bg-success">ناجح</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">راسب</span>
+                            }
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        }
+
+        <div class="mt-2">
+            <a class="btn btn-outline-primary" href="/Admin/Reports">رجوع لقائمة الاختبارات</a>
+        </div>
+    </div>
+
+</div>

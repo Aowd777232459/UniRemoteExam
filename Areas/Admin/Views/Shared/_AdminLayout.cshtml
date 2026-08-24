@@ -1,0 +1,155 @@
+@using Microsoft.AspNetCore.Http
+
+@{
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    var action = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+
+    var fullName = Context.Session.GetString("FullName") ?? "مدير النظام";
+    var deanName = Context.Session.GetString("AdminDeanName") ?? "العميد / عبدالملك محسن عواد";
+    var headerSubtitle = Context.Session.GetString("AdminHeaderSubtitle") ?? "منصة جامعية لإدارة الاختبارات الإلكترونية عن بُعد";
+    var logoUrl = Context.Session.GetString("AdminLogoUrl") ?? "/images/sanaa-university-logo.jpg";
+    var footerText = Context.Session.GetString("AdminFooterText") ?? "نظام الاختبارات عن بُعد - مشروع تخرج 2026 - جامعة صنعاء";
+    var showSystemStatus = Context.Session.GetString("AdminShowSystemStatus") != "false";
+}
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - لوحة المدير العام</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    <style>
+        :root { --dark:#061b16; --green:#0f5132; --green2:#198754; --gold:#b7791f; --gold2:#f3c465; --bg:#f3f6f8; --card:#ffffff; --text:#102a24; --muted:#64748b; --border:#e5ecef; --red:#b42318; }
+        * { box-sizing:border-box; }
+        body { margin:0; direction:rtl; text-align:right; background:radial-gradient(circle at top left, rgba(25,135,84,.08), transparent 32%), linear-gradient(180deg,#f7faf9,#f3f6f8); color:var(--text); font-family:Tahoma,Arial,sans-serif; }
+        a { text-decoration:none; }
+        .admin-shell { min-height:100vh; display:flex; }
+        .admin-sidebar { width:292px; min-height:100vh; position:fixed; top:0; right:0; bottom:0; background:radial-gradient(circle at top right, rgba(255,255,255,.13), transparent 30%), linear-gradient(180deg,#061b16 0%,#0b2d24 44%,#0f5132 100%); color:white; padding:22px 18px; overflow-y:auto; box-shadow:-14px 0 36px rgba(0,0,0,.15); z-index:1000; }
+        .brand-box { background:rgba(255,255,255,.10); border:1px solid rgba(255,255,255,.18); border-radius:25px; padding:18px; margin-bottom:18px; display:flex; align-items:center; gap:13px; }
+        .brand-logo { width:58px; height:58px; border-radius:20px; background:linear-gradient(135deg,var(--gold),var(--gold2)); display:flex; align-items:center; justify-content:center; color:#13251e; font-size:28px; font-weight:950; box-shadow:0 12px 26px rgba(183,121,31,.28); overflow:hidden; }
+        .brand-logo-img { background:#fff; padding:6px; }
+        .brand-logo-img img { width:100%; height:100%; object-fit:contain; display:block; }
+        .brand-title { font-weight:950; font-size:18px; line-height:1.6; }
+        .brand-subtitle { color:rgba(255,255,255,.72); font-size:12px; font-weight:800; }
+        .admin-user { background:rgba(255,255,255,.075); border:1px solid rgba(255,255,255,.14); border-radius:23px; padding:15px; margin-bottom:18px; }
+        .admin-user-name { font-weight:950; font-size:15px; margin-bottom:7px; }
+        .admin-user-role { display:inline-block; background:rgba(183,121,31,.27); color:#ffe6b0; border:1px solid rgba(255,230,176,.25); border-radius:50px; padding:6px 12px; font-size:12px; font-weight:950; }
+        .menu-title { color:rgba(255,255,255,.55); font-size:12px; font-weight:950; margin:19px 8px 9px; }
+        .side-link { display:flex; align-items:center; justify-content:space-between; gap:10px; color:rgba(255,255,255,.9); padding:13px 14px; border-radius:18px; margin-bottom:7px; font-weight:900; transition:.2s; border:1px solid transparent; }
+        .side-link:hover { color:white; background:rgba(255,255,255,.12); border-color:rgba(255,255,255,.16); transform:translateX(-3px); }
+        .side-link.active { background:linear-gradient(135deg,rgba(183,121,31,.98),rgba(243,196,101,.9)); color:#14231d; box-shadow:0 12px 24px rgba(183,121,31,.24); }
+        .side-link-main { display:flex; align-items:center; gap:8px; }
+        .side-icon { width:28px; text-align:center; display:inline-block; }
+        .admin-main { margin-right:292px; width:calc(100% - 292px); min-height:100vh; display:flex; flex-direction:column; }
+        .admin-topbar { min-height:100px; background:rgba(255,255,255,.94); backdrop-filter:blur(12px); border-bottom:1px solid var(--border); padding:16px 30px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:900; box-shadow:0 8px 24px rgba(16,42,36,.04); }
+        .topbar-title { display:flex; align-items:center; gap:16px; }
+        .logo-frame-wide { width:190px; height:78px; min-width:190px; border-radius:22px; background:#fff; border:1px solid #e5ecef; padding:8px; box-shadow:0 10px 24px rgba(16,42,36,.10); display:flex; align-items:center; justify-content:center; overflow:hidden; }
+        .topbar-university-logo-wide { width:100%; height:100%; object-fit:contain; display:block; }
+        .topbar-title h1 { margin:0; font-size:22px; font-weight:950; color:var(--text); line-height:1.5; }
+        .topbar-title small { display:block; margin-top:6px; color:var(--muted); font-weight:800; line-height:1.8; }
+        .topbar-mark { display:flex; align-items:center; gap:10px; color:var(--green); font-weight:950; background:#fff; border:1px solid var(--border); padding:10px 14px; border-radius:50px; box-shadow:0 10px 22px rgba(16,42,36,.05); }
+        .topbar-mark-dot { width:13px; height:13px; border-radius:50%; background:var(--green2); box-shadow:0 0 0 7px rgba(25,135,84,.13); }
+        .admin-content { padding:30px; flex:1; }
+        .admin-footer { background:white; border-top:1px solid var(--border); color:var(--muted); padding:16px 30px; font-weight:800; }
+        .mobile-header { display:none; background:linear-gradient(135deg,#061b16,#0f5132); color:white; padding:14px 18px; align-items:center; justify-content:space-between; }
+        .mobile-brand { font-weight:950; }
+        .mobile-menu-btn { border:1px solid rgba(255,255,255,.25); background:rgba(255,255,255,.12); color:white; border-radius:13px; padding:8px 13px; font-weight:950; }
+        .sidebar-overlay { display:none; }
+        @@media (max-width:992px) { .mobile-header{display:flex;} .admin-shell{display:block;} .admin-sidebar{transform:translateX(110%); transition:.25s;} .admin-sidebar.open{transform:translateX(0);} .sidebar-overlay{position:fixed; inset:0; background:rgba(0,0,0,.35); z-index:999;} .sidebar-overlay.show{display:block;} .admin-main{margin-right:0; width:100%;} .admin-topbar{padding:14px 18px; min-height:auto;} .topbar-title{gap:12px;} .logo-frame-wide{width:120px; height:58px; min-width:120px; border-radius:17px;} .topbar-title h1{font-size:18px;} .topbar-title small{font-size:12px;} .topbar-mark{display:none;} .admin-content{padding:18px;} }
+    </style>
+</head>
+<body>
+    <div class="mobile-header">
+        <div class="mobile-brand">لوحة المدير العام</div>
+        <button class="mobile-menu-btn" type="button" onclick="toggleAdminSidebar()">القائمة</button>
+    </div>
+
+    <div id="adminSidebarOverlay" class="sidebar-overlay" onclick="toggleAdminSidebar()"></div>
+
+    <div class="admin-shell">
+        <aside id="adminSidebar" class="admin-sidebar">
+            <div class="brand-box">
+                <div class="brand-logo brand-logo-img"><img src="@logoUrl" alt="شعار جامعة صنعاء" /></div>
+                <div><div class="brand-title">جامعة صنعاء</div><div class="brand-subtitle">نظام الاختبارات الإلكترونية</div></div>
+            </div>
+
+            <div class="admin-user"><div class="admin-user-name">@fullName</div><span class="admin-user-role">مدير النظام</span></div>
+
+            <div class="menu-title">لوحة التحكم</div>
+            <a class="side-link @(controller == "Dashboard" ? "active" : "")" href="/Admin/Dashboard"><span class="side-link-main"><span class="side-icon">📊</span>لوحة المدير</span><span>←</span></a>
+
+            <div class="menu-title">إدارة المستخدمين</div>
+            <a class="side-link @(controller == "Users" && action == "Index" ? "active" : "")" href="/Admin/Users"><span class="side-link-main"><span class="side-icon">👥</span>كل المستخدمين</span><span>←</span></a>
+            <a class="side-link" href="/Admin/Users/Create?roleName=Teacher"><span class="side-link-main"><span class="side-icon">👨‍🏫</span>إضافة دكتور</span><span>＋</span></a>
+            <a class="side-link" href="/Admin/Users/Create?roleName=Student"><span class="side-link-main"><span class="side-icon">🎓</span>إضافة طالب</span><span>＋</span></a>
+            <a class="side-link" href="/Admin/Users/Create?roleName=Control"><span class="side-link-main"><span class="side-icon">🧾</span>إضافة كنترول</span><span>＋</span></a>
+
+            <div class="menu-title">الاختبارات والتقارير</div>
+            <a class="side-link @(controller == "Approvals" ? "active" : "")" href="/Admin/Approvals/Pending"><span class="side-link-main"><span class="side-icon">✅</span>طلبات النشر</span><span>←</span></a>
+            <a class="side-link @(controller == "Courses" ? "active" : "")" href="/Admin/Courses"><span class="side-link-main"><span class="side-icon">📚</span>المقررات والتسجيل</span><span>←</span></a>
+            <a class="side-link @(controller == "Reports" ? "active" : "")" href="/Admin/Reports"><span class="side-link-main"><span class="side-icon">📑</span>التقارير</span><span>←</span></a>
+            <a class="side-link @(controller == "Audit" ? "active" : "")" href="/Admin/Audit"><span class="side-link-main"><span class="side-icon">🧭</span>سجل العمليات</span><span>←</span></a>
+            <a class="side-link @(controller == "Settings" ? "active" : "")" href="/Admin/Settings"><span class="side-link-main"><span class="side-icon">⚙</span>إعدادات النظام</span><span>←</span></a>
+            <a class="side-link @(controller == "SystemHealth" ? "active" : "")" href="/Admin/SystemHealth"><span class="side-link-main"><span class="side-icon">🟢</span>جاهزية النظام</span><span>←</span></a>
+
+            <div class="menu-title">الحساب</div>
+            <a class="side-link" href="/Account/ChangePassword"><span class="side-link-main"><span class="side-icon">🔐</span>تغيير كلمة المرور</span><span>←</span></a>
+            <form method="post" action="/Account/LogoutPost" style="margin:0">@Html.AntiForgeryToken()<button type="submit" class="side-link" style="width:100%;border:0;text-align:right"><span class="side-link-main"><span class="side-icon">🚪</span>تسجيل الخروج</span><span>×</span></button></form>
+        </aside>
+
+        <section class="admin-main">
+            <header class="admin-topbar">
+                <div class="topbar-title">
+                    <div class="logo-frame-wide"><img src="@logoUrl" alt="شعار جامعة صنعاء" class="topbar-university-logo-wide" /></div>
+                    <div><h1>@deanName</h1><small>@headerSubtitle</small></div>
+                </div>
+                <div class="topbar-actions">
+                    <a class="topbar-action-btn ghost" href="/Admin/Dashboard">الرئيسية</a>
+                    <a class="topbar-action-btn ghost" href="javascript:history.back()">رجوع</a>
+                    <form method="post" action="/Account/LogoutPost" style="display:inline">@Html.AntiForgeryToken()<button type="submit" class="topbar-action-btn danger" style="border:0">خروج</button></form>
+                    @if (showSystemStatus)
+                    {
+                        <div class="topbar-mark"><span class="topbar-mark-dot"></span><span>النظام يعمل</span></div>
+                    }
+                </div>
+            </header>
+
+            <main class="admin-content">@RenderBody()</main>
+            <footer class="admin-footer">@footerText</footer>
+        </section>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        function toggleAdminSidebar() {
+            const sidebar = document.getElementById("adminSidebar");
+            const overlay = document.getElementById("adminSidebarOverlay");
+            if (!sidebar || !overlay) return;
+            sidebar.classList.toggle("open");
+            overlay.classList.toggle("show");
+        }
+
+        document.addEventListener('click', function (event) {
+            const link = event.target.closest('a');
+            if (!link) return;
+            const text = (link.textContent || '').trim();
+            const isBackLink = text.includes('رجوع') || text.includes('عودة');
+            if (!isBackLink || link.dataset.noSmartBack === 'true') return;
+
+            const href = link.getAttribute('href') || '';
+            if (!href || href === '#' || href.startsWith('javascript:')) return;
+
+            if (window.history.length > 1) {
+                event.preventDefault();
+                window.history.back();
+            }
+        });
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

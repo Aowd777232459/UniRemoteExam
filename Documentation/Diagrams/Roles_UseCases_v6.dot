@@ -1,0 +1,24 @@
+digraph UseCases {
+ graph [rankdir=LR, bgcolor="white", pad=0.35, fontname="DejaVu Sans"];
+ node [fontname="DejaVu Sans", fontsize=10];
+ Admin [shape=box, style="rounded,filled", fillcolor="#ecfdf5", color="#047857"];
+ Teacher [shape=box, style="rounded,filled", fillcolor="#ecfdf5", color="#047857"];
+ Student [shape=box, style="rounded,filled", fillcolor="#ecfdf5", color="#047857"];
+ Control [shape=box, style="rounded,filled", fillcolor="#ecfdf5", color="#047857"];
+ subgraph cluster_system {
+  label="UniRemoteExam v6"; color="#0b3a2e"; style="rounded";
+  ManageUsers [shape=ellipse, label="Manage users"];
+  ManageCourses [shape=ellipse, label="Manage courses/enrollments"];
+  ReviewExam [shape=ellipse, label="Review/publish exam"];
+  CreateExam [shape=ellipse, label="Create exam & answer key"];
+  TakeExam [shape=ellipse, label="Take timed exam"];
+  ViewResult [shape=ellipse, label="View result/review"];
+  GradeEssay [shape=ellipse, label="Grade essays"];
+  Finalize [shape=ellipse, label="Finalize result"];
+  Reports [shape=ellipse, label="Reports & audit"];
+ }
+ Admin -> ManageUsers; Admin -> ManageCourses; Admin -> ReviewExam; Admin -> Reports;
+ Teacher -> CreateExam;
+ Student -> TakeExam; Student -> ViewResult;
+ Control -> GradeEssay; Control -> Finalize;
+}

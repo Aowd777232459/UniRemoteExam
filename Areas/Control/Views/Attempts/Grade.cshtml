@@ -1,0 +1,97 @@
+@model UniRemoteExam.Data.ExamAttempt
+@{
+    var questions = ViewBag.Questions as List<UniRemoteExam.Data.Question> ?? new();
+    var answers = ViewBag.Answers as List<UniRemoteExam.Data.AttemptAnswer> ?? new();
+    var choices = ViewBag.Choices as List<UniRemoteExam.Data.QuestionChoice> ?? new();
+    var keys = ViewBag.Keys as List<UniRemoteExam.Data.AnswerKeyItem> ?? new();
+    var manual = ViewBag.Manual as List<UniRemoteExam.Data.ManualScore> ?? new();
+
+    UniRemoteExam.Data.AttemptAnswer? A(int qid) => answers.FirstOrDefault(x => x.QuestionId == qid);
+    UniRemoteExam.Data.AnswerKeyItem? K(int qid) => keys.FirstOrDefault(x => x.QuestionId == qid);
+    decimal M(int qid) => manual.FirstOrDefault(x => x.QuestionId == qid)?.Score ?? 0m;
+}
+
+<div style="max-width:1050px;margin:18px auto; direction:rtl; text-align:right;">
+    <div style="background:#fff;border:1px solid #e6eaf2;border-radius:18px;box-shadow:0 10px 25px rgba(16,24,40,.06);overflow:hidden;">
+        <div style="padding:16px;border-bottom:1px solid #e6eaf2;">
+            <div style="font-weight:900;font-size:20px;color:#0b3a2e;">✅ تصحيح المحاولة: @Model.AttemptId</div>
+            <div style="color:#6b7280;margin-top:4px;">
+                الاختبار: <b>@(Model.Exam?.Title ?? "-")</b> — الطالب: <b>@(Model.Student?.FullName ?? Model.Student?.Email ?? "-")</b>
+            </div>
+        </div>
+
+        <div style="padding:16px;">
+            @foreach (var q in questions.OrderBy(x => x.SortOrder))
+            {
+                var a = A(q.QuestionId);
+                var k = K(q.QuestionId);
+
+                <div style="border:1px solid #e6eaf2;border-radius:16px;padding:14px;margin-bottom:12px;">
+                    <div style="display:flex;justify-content:space-between;gap:10px;">
+                        <div style="font-weight:900;color:#0b3a2e;">@q.SortOrder) @q.Body</div>
+                        <div style="color:#6b7280;font-weight:800;">@q.QuestionType | @q.Points درجة</div>
+                    </div>
+
+                    <div style="margin-top:10px;">
+                        @if (q.QuestionType == "MCQ")
+                        {
+                            var qChoices = choices.Where(c => c.QuestionId == q.QuestionId).OrderBy(c => c.SortOrder).ToList();
+                            <ul style="margin:0;padding-right:18px;">
+                                @foreach (var c in qChoices)
+                                {
+                                    var isSel = a?.SelectedChoiceId == c.ChoiceId;
+                                    var isCorrect = k?.CorrectChoiceId == c.ChoiceId;
+                                    <li style="margin:6px 0;">
+                                        @c.ChoiceText
+                                        @if (isSel)
+                                        {
+                                            <span style="margin-right:8px;padding:4px 8px;border-radius:999px;background:#e0f2fe;border:1px solid #93c5fd;font-weight:900;">اختيار الطالب</span>
+                                        }
+                                        @if (isCorrect)
+                                        {
+                                            <span style="margin-right:8px;padding:4px 8px;border-radius:999px;background:#e8fff4;border:1px solid rgba(16,185,129,.35);font-weight:900;">الصحيح</span>
+                                        }
+                                    </li>
+                                }
+                            </ul>
+                        }
+                        else if (q.QuestionType == "TF")
+                        {
+                            <div style="font-weight:900;">
+                                الطالب: <span style="color:#0b3a2e;">@(a?.BoolAnswer.HasValue == true ? (a.BoolAnswer.Value ? "صح" : "خطأ") : "-")</span>
+                                — النموذج: <span style="color:#0b3a2e;">@(k?.CorrectBool.HasValue == true ? (k.CorrectBool.Value ? "صح" : "خطأ") : "-")</span>
+                            </div>
+                        }
+                        else
+                        {
+                            <div style="background:#f6f8fb;border:1px solid #e6eaf2;border-radius:12px;padding:10px;">
+                                @(a?.EssayAnswer ?? "-")
+                            </div>
+
+                            <form method="post" action="/Control/Attempts/SaveEssayScore" style="display:flex;gap:10px;align-items:center;margin-top:10px;">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="attemptId" value="@Model.AttemptId" />
+                                <input type="hidden" name="questionId" value="@q.QuestionId" />
+                                <input name="score" type="number" step="0.5" value="@M(q.QuestionId)"
+                                       style="width:140px;padding:10px;border-radius:12px;border:1px solid #e6eaf2;" />
+                                <button type="submit"
+                                        style="padding:10px 14px;border-radius:12px;border:2px solid rgba(202,164,74,.55);background:#fff;font-weight:900;color:#0b3a2e;cursor:pointer;">
+                                    حفظ درجة المقالي
+                                </button>
+                            </form>
+                        }
+                    </div>
+                </div>
+            }
+
+            <form method="post" action="/Control/Attempts/Finalize">
+                                @Html.AntiForgeryToken()
+                <input type="hidden" name="attemptId" value="@Model.AttemptId" />
+                <button type="submit"
+                        style="width:100%;padding:14px;border-radius:16px;border:0;background:linear-gradient(90deg,#0b3a2e,#0f5a47);color:#fff;font-weight:900;font-size:18px;cursor:pointer;">
+                    اعتماد النتيجة وإغلاق المحاولة (ويرسل البريد)
+                </button>
+            </form>
+        </div>
+    </div>
+</div>

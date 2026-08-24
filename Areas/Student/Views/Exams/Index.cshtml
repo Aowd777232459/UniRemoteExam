@@ -1,0 +1,79 @@
+@model List<UniRemoteExam.Data.Exam>
+@{
+    ViewData["Title"] = "الاختبارات المنشورة";
+}
+
+<div style="max-width:1050px;margin:18px auto; direction:rtl; text-align:right;">
+    @if (TempData["Error"] != null)
+    {
+        <div style="background:#fef2f2;border:1px solid #fecaca;color:#991b1b;border-radius:16px;padding:14px 16px;margin-bottom:14px;font-weight:900;line-height:1.8;">
+            @TempData["Error"]
+        </div>
+    }
+
+    <div style="background:#fff;border:1px solid #e6eaf2;border-radius:18px;box-shadow:0 10px 25px rgba(16,24,40,.06);overflow:hidden;">
+        <div style="padding:16px;border-bottom:1px solid #e6eaf2;display:flex;justify-content:space-between;align-items:center;gap:12px;">
+            <div>
+                <div style="font-weight:900;font-size:20px;color:#0b3a2e;">📘 الاختبارات المنشورة</div>
+                <div style="color:#6b7280;margin-top:4px;">اختر اختبارًا لبدء الحل</div>
+            </div>
+
+            <a href="/Student/Home"
+               style="display:inline-block;padding:10px 14px;border-radius:12px;border:2px solid rgba(11,58,46,.25);background:#fff;font-weight:800;color:#0b3a2e;cursor:pointer;text-decoration:none;">
+                رجوع
+            </a>
+        </div>
+
+        <div style="padding:16px;">
+            @if (Model == null || Model.Count == 0)
+            {
+                <div style="background:#f6f8fb;border:1px solid #e6eaf2;border-radius:14px;padding:14px;color:#374151;">
+                    لا توجد اختبارات منشورة حالياً.
+                </div>
+            }
+            else
+            {
+                <div class="published-exams-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+                    @foreach (var e in Model)
+                    {
+                        <div style="background:#fff;border:1px solid #e6eaf2;border-radius:16px;box-shadow:0 10px 25px rgba(16,24,40,.05);padding:14px;display:flex;flex-direction:column;gap:10px;">
+                            <div style="font-weight:900;color:#0b3a2e;font-size:18px;">@e.Title</div>
+                            <div style="color:#6b7280;">المادة: <b>@(e.Course?.Name ?? e.CourseName ?? "غير محددة")</b></div>
+                            <div style="color:#6b7280;font-size:13px;line-height:1.7;">
+                                المحاولات: <b>@(e.MaxAttempts <= 0 ? 1 : e.MaxAttempts)</b> |
+                                الأسئلة: <b>@(e.ShuffleQuestions ? "عشوائية" : "مرتبة")</b> |
+                                الخيارات: <b>@(e.ShuffleChoices ? "عشوائية" : "مرتبة")</b>
+                            </div>
+
+                            <div style="margin-top:auto;display:flex;gap:10px;">
+                                <a href="/Student/Exams/Take/@e.ExamId"
+                                   style="flex:1;display:inline-block;text-align:center;padding:12px;border-radius:14px;border:0;background:linear-gradient(90deg,#0b3a2e,#0f5a47);color:#fff;font-weight:900;cursor:pointer;text-decoration:none;">
+                                    🧪 بدء الاختبار
+                                </a>
+
+                                <a href="/Student/Results/Index"
+                                   style="display:inline-block;text-align:center;padding:12px;border-radius:14px;border:2px solid rgba(202,164,74,.6);background:#fff;color:#0b3a2e;font-weight:900;cursor:pointer;text-decoration:none;">
+                                    📊 النتائج
+                                </a>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <style>
+                    @@media (max-width: 1000px) {
+                        .published-exams-grid {
+                            grid-template-columns: repeat(2,1fr) !important;
+                        }
+                    }
+
+                    @@media (max-width: 640px) {
+                        .published-exams-grid {
+                            grid-template-columns: 1fr !important;
+                        }
+                    }
+                </style>
+            }
+        </div>
+    </div>
+</div>

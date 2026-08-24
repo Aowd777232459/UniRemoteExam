@@ -1,0 +1,96 @@
+@model UniRemoteExam.Areas.Admin.ViewModels.ApprovalPendingPageVm
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "طلبات نشر الاختبارات";
+}
+
+<style>
+    .approvals-page { direction: rtl; text-align: right; }
+    .actions { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px; }
+    .btn-admin { border:0; border-radius:15px; padding:10px 16px; font-weight:950; text-decoration:none; display:inline-flex; gap:7px; align-items:center; }
+    .btn-green { background:#0f5132; color:#fff; }
+    .btn-light { background:#fff; color:#102a24; border:1px solid #e5ecef; }
+    .stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:18px; margin-bottom:22px; }
+    .stat-card { background:#fff; border:1px solid #e5ecef; border-radius:24px; padding:22px; box-shadow:0 14px 30px rgba(16,42,36,.06); position:relative; overflow:hidden; }
+    .stat-card::before { content:""; position:absolute; top:0; right:0; left:0; height:6px; background:linear-gradient(90deg,#0f5132,#198754,#b7791f); }
+    .stat-label { color:#64748b; font-size:13px; font-weight:900; margin-bottom:10px; }
+    .stat-value { color:#102a24; font-size:34px; font-weight:950; }
+    .requests-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:18px; }
+    .request-card { background:#fff; border:1px solid #e5ecef; border-radius:26px; padding:22px; box-shadow:0 16px 35px rgba(16,42,36,.07); }
+    .request-title { font-size:20px; font-weight:950; color:#102a24; margin-bottom:8px; }
+    .request-meta { color:#64748b; font-weight:800; line-height:1.9; }
+    .badges { display:flex; gap:8px; flex-wrap:wrap; margin:15px 0; }
+    .badge-admin { border-radius:50px; padding:7px 12px; font-size:12px; font-weight:950; display:inline-flex; }
+    .badge-blue { background:#e8f0ff; color:#175cd3; }
+    .badge-gold { background:#fff4dc; color:#996515; }
+    .badge-green { background:#e8f7ef; color:#0f5132; }
+    .badge-red { background:#fde8e8; color:#b42318; }
+    .card-actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:14px; }
+    .empty { background:#fff; border:1px dashed #ccd6dd; border-radius:24px; padding:32px; text-align:center; color:#64748b; font-weight:900; }
+    @@media (max-width: 1000px) { .stats-grid, .requests-grid { grid-template-columns:1fr 1fr; } }
+    @@media (max-width: 650px) { .stats-grid, .requests-grid { grid-template-columns:1fr; } }
+</style>
+
+<div class="approvals-page">
+    <div class="actions">
+        <a class="btn-admin btn-green" href="/Admin/Dashboard">↩ رجوع للوحة المدير</a>
+        <a class="btn-admin btn-light" href="/Admin/Reports">📑 التقارير</a>
+        <a class="btn-admin btn-light" href="/Admin/Users">👥 المستخدمون</a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success" style="font-weight:900;border-radius:18px;">@TempData["Success"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger" style="font-weight:900;border-radius:18px;">@TempData["Error"]</div>
+    }
+
+    <div class="stats-grid">
+        <div class="stat-card"><div class="stat-label">طلبات معلقة</div><div class="stat-value">@Model.TotalPending</div></div>
+        <div class="stat-card"><div class="stat-label">إجمالي الأسئلة</div><div class="stat-value">@Model.TotalQuestions</div></div>
+        <div class="stat-card"><div class="stat-label">إجمالي الدرجات</div><div class="stat-value">@Model.TotalPoints</div></div>
+        <div class="stat-card"><div class="stat-label">جاهزة للنشر</div><div class="stat-value">@Model.ReadyToPublish</div></div>
+    </div>
+
+    @if (!Model.Requests.Any())
+    {
+        <div class="empty">لا توجد طلبات نشر بانتظار الموافقة.</div>
+    }
+    else
+    {
+        <div class="requests-grid">
+            @foreach (var item in Model.Requests)
+            {
+                <div class="request-card">
+                    <div class="request-title">@item.ExamTitle</div>
+                    <div class="request-meta">
+                        المقرر: @item.CourseName<br />
+                        الدكتور: @item.TeacherName - @item.TeacherEmail<br />
+                        تاريخ الطلب: @item.RequestedAt.ToString("yyyy-MM-dd HH:mm")
+                    </div>
+
+                    <div class="badges">
+                        <span class="badge-admin badge-blue">الأسئلة: @item.QuestionCount</span>
+                        <span class="badge-admin badge-green">الدرجات: @item.TotalPoints</span>
+                        <span class="badge-admin badge-gold">الوقت: @item.TotalTimeSeconds ثانية</span>
+                        @if (item.CanApprove)
+                        {
+                            <span class="badge-admin badge-green">جاهز للمراجعة</span>
+                        }
+                        else
+                        {
+                            <span class="badge-admin badge-red">يحتاج تعديل</span>
+                        }
+                    </div>
+
+                    <div class="card-actions">
+                        <a href="/Admin/Approvals/Details/@item.RequestId" class="btn-admin btn-green">عرض المحتوى وتعديل الأسئلة</a>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

@@ -1,0 +1,25 @@
+digraph Workflow {
+ graph [rankdir=LR, bgcolor="white", pad=0.35, fontname="DejaVu Sans"];
+ node [shape=box, style="rounded,filled", fillcolor="#f8fafc", color="#0b3a2e", fontname="DejaVu Sans", fontsize=11, margin="0.15,0.08"];
+ edge [color="#16725a", penwidth=1.4, arrowsize=0.8, fontname="DejaVu Sans"];
+ Teacher [label="Teacher\nCreate exam + questions + answer key"];
+ Pending [label="PendingReview", fillcolor="#fff7ed", color="#c2410c"];
+ Admin [label="Admin review\nApprove or reject"];
+ Rejected [label="Rejected\nReturn to teacher", fillcolor="#fef2f2", color="#b91c1c"];
+ Published [label="Published\nAvailable to enrolled students", fillcolor="#ecfdf5", color="#047857"];
+ Student [label="Student attempt\nServer timers + locked answers"];
+ Submitted [label="Submitted\nAutomatic questions scored"];
+ Control [label="Control\nGrade essays + validate"];
+ Closed [label="Closed\nFinal result stored", fillcolor="#ecfdf5", color="#047857"];
+ Result [label="Student result / review\nReports + optional email"];
+ Teacher -> Pending;
+ Pending -> Admin;
+ Admin -> Rejected [label="reject"];
+ Rejected -> Teacher [label="edit + resubmit"];
+ Admin -> Published [label="approve"];
+ Published -> Student;
+ Student -> Submitted [label="submit / timeout"];
+ Submitted -> Control;
+ Control -> Closed [label="finalize"];
+ Closed -> Result;
+}

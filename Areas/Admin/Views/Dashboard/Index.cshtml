@@ -1,0 +1,376 @@
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "لوحة المدير العام";
+}
+<style>
+    .admin-dashboard {
+        direction: rtl;
+        text-align: right
+    }
+
+    .section-grid {
+        display: grid;
+        grid-template-columns: repeat(12,1fr);
+        gap: 22px;
+        margin-bottom: 24px
+    }
+
+    .span-3 {
+        grid-column: span 3
+    }
+
+    .span-4 {
+        grid-column: span 4
+    }
+
+    .span-8 {
+        grid-column: span 8
+    }
+
+    .span-12 {
+        grid-column: span 12
+    }
+
+    .campus-card {
+        background: linear-gradient(180deg,#fff,#fbfcfd);
+        border: 1px solid #e5ecef;
+        border-radius: 28px;
+        padding: 24px;
+        box-shadow: 0 18px 40px rgba(16,42,36,.07);
+        position: relative;
+        overflow: hidden
+    }
+
+        .campus-card:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            left: 0;
+            height: 6px;
+            background: linear-gradient(90deg,#0f5132,#198754,#b7791f)
+        }
+
+    .stat-card {
+        min-height: 178px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between
+    }
+
+    .stat-top {
+        display: flex;
+        justify-content: space-between;
+        gap: 14px;
+        align-items: flex-start
+    }
+
+    .stat-icon {
+        width: 54px;
+        height: 54px;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 26px;
+        background: #e8f7ef;
+        color: #0f5132;
+        flex: 0 0 auto
+    }
+
+        .stat-icon.gold {
+            background: #fff4dc;
+            color: #996515
+        }
+
+        .stat-icon.blue {
+            background: #e8f0ff;
+            color: #175cd3
+        }
+
+        .stat-icon.red {
+            background: #fde8e8;
+            color: #b42318
+        }
+
+    .stat-label {
+        color: #64748b;
+        font-size: 14px;
+        font-weight: 950;
+        margin-bottom: 10px
+    }
+
+    .stat-number {
+        color: #102a24;
+        font-size: 42px;
+        font-weight: 950;
+        line-height: 1
+    }
+
+    .stat-note {
+        color: #64748b;
+        font-size: 13px;
+        font-weight: 800;
+        line-height: 1.8;
+        margin-top: 12px
+    }
+
+    .stat-footer {
+        margin-top: 18px;
+        padding-top: 14px;
+        border-top: 1px solid #edf2f4;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        color: #64748b;
+        font-size: 13px;
+        font-weight: 850
+    }
+
+    .status-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #198754;
+        display: inline-block;
+        margin-left: 6px;
+        box-shadow: 0 0 0 5px rgba(25,135,84,.13)
+    }
+
+    .panel-title-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 20px;
+        flex-wrap: wrap
+    }
+
+    .panel-title {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 950;
+        color: #102a24;
+        display: flex;
+        align-items: center;
+        gap: 10px
+    }
+
+    .panel-title-mark {
+        width: 11px;
+        height: 30px;
+        border-radius: 30px;
+        background: linear-gradient(180deg,#198754,#b7791f);
+        display: inline-block
+    }
+
+    .panel-subtitle {
+        color: #64748b;
+        font-size: 13px;
+        font-weight: 800;
+        margin-top: 4px
+    }
+
+    .badge-campus {
+        border-radius: 50px;
+        padding: 7px 13px;
+        font-size: 12px;
+        font-weight: 950;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+        text-decoration: none;
+        border: none
+    }
+
+    .badge-green {
+        background: #e8f7ef;
+        color: #0f5132
+    }
+
+    .badge-gold {
+        background: #fff4dc;
+        color: #996515
+    }
+
+    .badge-blue {
+        background: #e8f0ff;
+        color: #175cd3
+    }
+
+    .badge-red {
+        background: #fde8e8;
+        color: #b42318
+    }
+
+    .live-grid {
+        display: grid;
+        grid-template-columns: 190px 1fr;
+        gap: 18px;
+        align-items: stretch
+    }
+
+    .live-circle {
+        width: 168px;
+        height: 168px;
+        border-radius: 50%;
+        background: radial-gradient(circle at center,#fff 0 52%,transparent 53%),conic-gradient(#198754 calc(var(--p) * 1%),#e5ecef 0);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: auto;
+        position: relative
+    }
+
+    .live-circle-content {
+        text-align: center
+    }
+
+        .live-circle-content strong {
+            display: block;
+            font-size: 30px;
+            font-weight: 950;
+            color: #0f5132;
+            line-height: 1
+        }
+
+        .live-circle-content span {
+            font-size: 12px;
+            color: #64748b;
+            font-weight: 900
+        }
+
+    .status-list {
+        display: grid;
+        gap: 12px
+    }
+
+    .status-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #f8fbfa;
+        border: 1px solid #e2ebe7;
+        border-radius: 18px;
+        padding: 14px 16px;
+        font-weight: 900
+    }
+
+        .status-row span {
+            color: #64748b;
+            font-size: 13px
+        }
+
+        .status-row strong {
+            color: #102a24;
+            font-size: 20px
+        }
+
+    .progress-campus {
+        height: 18px;
+        border-radius: 50px;
+        background: #e8eef2;
+        overflow: hidden;
+        margin: 14px 0 8px
+    }
+
+    .progress-campus-bar {
+        height: 100%;
+        border-radius: 50px;
+        background: linear-gradient(90deg,#0f5132,#198754,#b7791f);
+        color: #fff;
+        font-size: 12px;
+        font-weight: 950;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: .3s
+    }
+
+    .campus-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 12px
+    }
+
+        .campus-table thead th {
+            color: #64748b;
+            font-size: 13px;
+            font-weight: 950;
+            padding: 0 14px 4px;
+            border: 0
+        }
+
+        .campus-table tbody tr {
+            background: #fff;
+            box-shadow: 0 10px 22px rgba(16,42,36,.05)
+        }
+
+        .campus-table tbody td {
+            border-top: 1px solid #edf2f4;
+            border-bottom: 1px solid #edf2f4;
+            padding: 15px 14px;
+            font-weight: 800;
+            color: #263238;
+            vertical-align: middle
+        }
+
+            .campus-table tbody td:first-child {
+                border-right: 1px solid #edf2f4;
+                border-radius: 0 18px 18px 0
+            }
+
+            .campus-table tbody td:last-child {
+                border-left: 1px solid #edf2f4;
+                border-radius: 18px 0 0 18px
+            }
+
+    .empty-campus {
+        background: #f8fafb;
+        border: 1px dashed #ccd6dd;
+        border-radius: 22px;
+        padding: 28px;
+        text-align: center;
+        color: #64748b;
+        font-weight: 900
+    }
+
+    @@media(max-width:1200px) {
+        .span-3, .span-4, .span-8 {
+            grid-column: span 6
+        }
+    }
+
+    (max-width:768px) {
+        .section-grid {
+            grid-template-columns: 1fr
+        }
+
+        .span-3, .span-4, .span-8, .span-12 {
+            grid-column: span 1
+        }
+
+        .live-grid {
+            grid-template-columns: 1fr
+        }
+
+        .stat-number {
+            font-size: 34px
+        }
+    }
+</style>
+<div class="admin-dashboard">
+    <section class="section-grid">
+        <div class="campus-card stat-card span-3"><div class="stat-top"><div><div class="stat-label">إجمالي الطلاب النشطين</div><div class="stat-number" id="students">0</div><div class="stat-note">حسابات الطلاب النشطة</div></div><div class="stat-icon blue">🎓</div></div><div class="stat-footer"><span><i class="status-dot"></i> حالة الطلاب</span><a href="/Admin/Users?roleFilter=Student" class="badge-campus badge-blue">عرض الطلاب</a></div></div>
+        <div class="campus-card stat-card span-3"><div class="stat-top"><div><div class="stat-label">إجمالي الدكاترة</div><div class="stat-number" id="teachers">0</div><div class="stat-note">حسابات الدكاترة النشطة</div></div><div class="stat-icon gold">👨‍🏫</div></div><div class="stat-footer"><span><i class="status-dot"></i> هيئة التدريس</span><a href="/Admin/Users?roleFilter=Teacher" class="badge-campus badge-gold">عرض الدكاترة</a></div></div>
+        <div class="campus-card stat-card span-3"><div class="stat-top"><div><div class="stat-label">الاختبارات المنشورة</div><div class="stat-number" id="publishedExams">0</div><div class="stat-note">إجمالي الاختبارات: <span id="totalExams">0</span></div></div><div class="stat-icon">📝</div></div><div class="stat-footer"><span><i class="status-dot"></i> متاحة للطلاب</span><a href="/Admin/Reports" class="badge-campus badge-green">التقارير</a></div></div>
+        <div class="campus-card stat-card span-3"><div class="stat-top"><div><div class="stat-label">طلبات بانتظار الموافقة</div><div class="stat-number" id="pendingPublish">0</div><div class="stat-note">طلبات تحتاج مراجعة المدير</div></div><div class="stat-icon red">✅</div></div><div class="stat-footer"><a href="/Admin/Approvals/Pending" class="badge-campus badge-gold">فتح الطلبات</a><span>Pending</span></div></div>
+    </section>
+    <section class="section-grid"><div class="campus-card span-12"><div class="panel-title-row"><div><h3 class="panel-title"><span class="panel-title-mark"></span>المراقبة المباشرة للاختبارات</h3><div class="panel-subtitle">متابعة حالة الطلاب داخل الاختبارات وتحديث المؤشرات تلقائيًا.</div></div><button type="button" onclick="loadStats()" class="badge-campus badge-blue">تحديث الآن</button></div><div class="live-grid"><div><div class="live-circle" id="liveCircle" style="--p:0"><div class="live-circle-content"><strong id="livePercent">0%</strong><span>نشاط مباشر</span></div></div></div><div class="status-list"><div class="status-row"><span>طلاب يؤدون الاختبار الآن</span><strong id="liveTaking">0</strong></div><div class="status-row"><span>محاولات بدأت</span><strong id="started">0</strong></div><div class="status-row"><span>محاولات تم تسليمها</span><strong id="submitted">0</strong></div><div class="status-row"><span>نتائج مغلقة ومعتمدة</span><strong id="closed">0</strong></div></div></div><div class="progress-campus"><div id="liveBar" class="progress-campus-bar" style="width:0%">0%</div></div><div class="stat-note">يتم احتساب النشاط المباشر بناءً على عدد الطلاب النشطين مقارنة بعدد المحاولات التي حالتها Started.</div></div></section>
+    <section class="section-grid"><div class="campus-card span-12"><div class="panel-title-row"><div><h3 class="panel-title"><span class="panel-title-mark"></span>روابط إدارة سريعة</h3><div class="panel-subtitle">كل أزرار المدير الأساسية من القائمة الجانبية، وهذه روابط إضافية للاختبار السريع.</div></div></div><div style="display:flex;gap:10px;flex-wrap:wrap"><a href="/Admin/Users" class="badge-campus badge-green">إدارة المستخدمين</a><a href="/Admin/Users/Create?roleName=Teacher" class="badge-campus badge-gold">إضافة دكتور</a><a href="/Admin/Users/Create?roleName=Student" class="badge-campus badge-blue">إضافة طالب</a><a href="/Admin/Users/Create?roleName=Control" class="badge-campus badge-green">إضافة كنترول</a><a href="/Admin/Approvals/Pending" class="badge-campus badge-gold">طلبات النشر</a><a href="/Admin/Reports" class="badge-campus badge-blue">التقارير</a></div></div></section>
+</div>
+<script>
+async function loadStats(){try{const res=await fetch('/Admin/Dashboard/Stats');if(!res.ok)return;const s=await res.json();const live=s.liveTaking??0;const submitted=s.submitted??0;const closed=s.closed??0;const students=s.students??0;const teachers=s.teachers??0;const totalExams=s.totalExams??0;const publishedExams=s.publishedExams??0;const pendingPublish=s.pendingPublish??0;const percent=s.livePercent??0;setText('liveTaking',live);setText('started',live);setText('submitted',submitted);setText('closed',closed);setText('students',students);setText('teachers',teachers);setText('publishedExams',publishedExams);setText('pendingPublish',pendingPublish);setText('totalExams',totalExams);setText('livePercent',percent+'%');const bar=document.getElementById('liveBar');if(bar){bar.style.width=percent+'%';bar.innerText=percent+'%';}const circle=document.getElementById('liveCircle');if(circle){circle.style.setProperty('--p',percent);}}catch(e){console.log(e)}}function setText(id,value){const el=document.getElementById(id);if(el)el.innerText=value;}loadStats();setInterval(loadStats,5000);
+</script>

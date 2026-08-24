@@ -1,0 +1,17 @@
+digraph Architecture {
+ graph [rankdir=TB, bgcolor="white", pad=0.35, nodesep=0.55, ranksep=0.65, fontname="DejaVu Sans"];
+ node [shape=box, style="rounded,filled", fillcolor="#f8fafc", color="#0b3a2e", fontname="DejaVu Sans", fontsize=11];
+ edge [color="#64748b", arrowsize=0.8];
+ Browser [label="Web Browser\nAdmin | Teacher | Student | Control", fillcolor="#ecfdf5"];
+ MVC [label="ASP.NET Core MVC\nControllers + Razor Views + Session + CSRF"];
+ Services [label="Domain Services\nScoreCalculator | YemenTime | PasswordService | SMTP"];
+ EF [label="Entity Framework Core\nUniRemoteExamDbContext"];
+ SQL [shape=cylinder, label="SQL Server\nUniRemoteExamDb_Final", fillcolor="#eff6ff", color="#1d4ed8"];
+ SMTP [shape=component, label="SMTP Provider\nOptional", fillcolor="#fff7ed", color="#c2410c"];
+ Browser -> MVC [label="HTTPS"];
+ MVC -> Services;
+ MVC -> EF;
+ Services -> EF;
+ EF -> SQL;
+ Services -> SMTP [label="result email"];
+}

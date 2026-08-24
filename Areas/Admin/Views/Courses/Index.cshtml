@@ -1,0 +1,84 @@
+@model List<UniRemoteExam.Data.Course>
+@using UniRemoteExam.Data
+@{
+    ViewData["Title"] = "المقررات والتسجيل";
+    var departments = ViewBag.Departments as List<Department> ?? new();
+    var terms = ViewBag.Terms as List<AcademicTerm> ?? new();
+    var teachers = ViewBag.Teachers as List<User> ?? new();
+    var students = ViewBag.Students as List<User> ?? new();
+    int? selectedId = ViewBag.SelectedCourseId as int?;
+    var selected = Model.FirstOrDefault(c => c.CourseId == selectedId) ?? Model.FirstOrDefault();
+}
+<div style="max-width:1250px;margin:24px auto;direction:rtl;padding:0 14px">
+    <div style="background:linear-gradient(135deg,#0b3a2e,#16725a);color:white;border-radius:24px;padding:24px;margin-bottom:18px">
+        <h1 style="font-weight:950;margin:0">المقررات وتسجيل الطلاب</h1>
+        <div style="opacity:.9;margin-top:8px">الربط الأكاديمي الذي يحدد الاختبارات المسموح بها لكل طالب.</div>
+    </div>
+    @if (TempData["Error"] != null) { <div class="alert alert-danger">@TempData["Error"]</div> }
+    @if (TempData["Success"] != null) { <div class="alert alert-success">@TempData["Success"]</div> }
+
+    <div class="row g-3">
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 mb-3"><div class="card-body">
+                <h5 class="fw-bold">إنشاء قسم</h5>
+                <form method="post" action="/Admin/Courses/CreateDepartment">@Html.AntiForgeryToken()
+                    <input name="code" class="form-control mb-2" placeholder="الرمز: CS" required />
+                    <input name="name" class="form-control mb-2" placeholder="اسم القسم" required />
+                    <button class="btn btn-success w-100">حفظ القسم</button>
+                </form>
+            </div></div>
+            <div class="card border-0 shadow-sm rounded-4 mb-3"><div class="card-body">
+                <h5 class="fw-bold">إنشاء فصل أكاديمي</h5>
+                <form method="post" action="/Admin/Courses/CreateTerm">@Html.AntiForgeryToken()
+                    <input name="name" class="form-control mb-2" placeholder="2026/2027 - الفصل الأول" required />
+                    <label>البداية</label><input name="startDate" type="date" class="form-control mb-2" required />
+                    <label>النهاية</label><input name="endDate" type="date" class="form-control mb-2" required />
+                    <button class="btn btn-success w-100">حفظ الفصل</button>
+                </form>
+            </div></div>
+        </div>
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4"><div class="card-body">
+                <h5 class="fw-bold">إنشاء مقرر</h5>
+                <form method="post" action="/Admin/Courses/CreateCourse" class="row g-2">@Html.AntiForgeryToken()
+                    <div class="col-md-3"><input name="code" class="form-control" placeholder="رمز المقرر" required /></div>
+                    <div class="col-md-5"><input name="name" class="form-control" placeholder="اسم المقرر" required /></div>
+                    <div class="col-md-4"><input name="level" class="form-control" placeholder="المستوى" /></div>
+                    <div class="col-md-4"><select name="departmentId" class="form-select" required><option value="">القسم</option>@foreach(var d in departments){<option value="@d.DepartmentId">@d.Name</option>}</select></div>
+                    <div class="col-md-4"><select name="academicTermId" class="form-select" required><option value="">الفصل</option>@foreach(var t in terms){<option value="@t.AcademicTermId">@t.Name</option>}</select></div>
+                    <div class="col-md-4"><select name="teacherId" class="form-select" required><option value="">الدكتور</option>@foreach(var t in teachers){<option value="@t.UserId">@t.FullName</option>}</select></div>
+                    <div class="col-12"><button class="btn btn-success">إنشاء المقرر</button></div>
+                </form>
+            </div></div>
+        </div>
+    </div>
+
+    <div class="row g-3 mt-1">
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm rounded-4"><div class="card-body table-responsive">
+                <table class="table align-middle"><thead><tr><th>المقرر</th><th>الفصل</th><th>الدكتور</th><th>المسجلون</th><th></th></tr></thead><tbody>
+                @foreach(var c in Model){<tr><td><b>@c.Code</b><br/>@c.Name</td><td>@c.AcademicTerm.Name</td><td>@c.Teacher.FullName</td><td>@c.Enrollments.Count(e=>e.IsActive)</td><td><a class="btn btn-sm btn-outline-success" href="/Admin/Courses?courseId=@c.CourseId">إدارة التسجيل</a></td></tr>}
+                </tbody></table>
+            </div></div>
+        </div>
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-sm rounded-4"><div class="card-body">
+                @if(selected == null){<div class="text-muted">أنشئ مقررًا أولًا.</div>}
+                else {
+                    <h5 class="fw-bold">تسجيل الطلاب: @selected.Code</h5>
+                    <form method="post" action="/Admin/Courses/EnrollStudent" class="d-flex gap-2 mb-3">@Html.AntiForgeryToken()
+                        <input type="hidden" name="courseId" value="@selected.CourseId" />
+                        <select name="studentId" class="form-select" required><option value="">اختر الطالب</option>@foreach(var s in students){<option value="@s.UserId">@s.FullName - @s.StudentProfile?.StudentNumber</option>}</select>
+                        <button class="btn btn-success">إضافة</button>
+                    </form>
+                    @foreach(var e in selected.Enrollments.Where(e=>e.IsActive)){
+                        <div class="d-flex justify-content-between align-items-center border rounded-3 p-2 mb-2">
+                            <span>@e.Student.FullName</span>
+                            <form method="post" action="/Admin/Courses/RemoveEnrollment">@Html.AntiForgeryToken()<input type="hidden" name="enrollmentId" value="@e.EnrollmentId"/><button class="btn btn-sm btn-outline-danger">إلغاء</button></form>
+                        </div>
+                    }
+                }
+            </div></div>
+        </div>
+    </div>
+</div>

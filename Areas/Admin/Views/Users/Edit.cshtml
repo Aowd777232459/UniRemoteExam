@@ -1,0 +1,150 @@
+@model UniRemoteExam.Areas.Admin.ViewModels.UserFormVm
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "تعديل مستخدم";
+}
+
+<style>
+    .form-page { direction:rtl; text-align:right; }
+    .page-actions { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px; }
+    .btn-admin { border:none; border-radius:16px; padding:11px 18px; font-weight:950; text-decoration:none; display:inline-flex; align-items:center; gap:7px; cursor:pointer; transition:.2s; }
+    .btn-admin:hover { transform:translateY(-2px); text-decoration:none; }
+    .btn-green { background:#0f5132; color:white; }
+    .btn-green:hover { color:white; background:#0a3b25; }
+    .btn-light-admin { background:white; color:#102a24; border:1px solid #e5ecef; }
+    .btn-light-admin:hover { color:#102a24; background:#f8fbfa; }
+    .form-hero { background:linear-gradient(135deg,#061b16,#0f5132,#198754); color:white; border-radius:30px; padding:28px; margin-bottom:24px; box-shadow:0 20px 45px rgba(15,81,50,.22); }
+    .form-hero h2 { margin:0 0 8px; font-size:28px; font-weight:950; }
+    .form-hero p { margin:0; opacity:.9; font-weight:800; line-height:1.9; }
+    .section-card { background:white; border:1px solid #e5ecef; border-radius:26px; padding:24px; box-shadow:0 16px 35px rgba(16,42,36,.07); margin-bottom:22px; position:relative; overflow:hidden; }
+    .section-card::before { content:""; position:absolute; top:0; right:0; left:0; height:6px; background:linear-gradient(90deg,#0f5132,#198754,#b7791f); }
+    .section-title { margin:0 0 20px; font-size:20px; font-weight:950; color:#102a24; display:flex; align-items:center; gap:10px; }
+    .section-title span { width:10px; height:28px; border-radius:20px; background:linear-gradient(180deg,#198754,#b7791f); display:inline-block; }
+    .form-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:18px; }
+    .field label { display:block; margin-bottom:7px; font-weight:950; color:#102a24; }
+    .form-control-admin { width:100%; border:1px solid #dce5e9; border-radius:15px; padding:12px 14px; font-weight:800; outline:none; background:#fff; }
+    .form-control-admin:focus { border-color:#198754; box-shadow:0 0 0 4px rgba(25,135,84,.10); }
+    .hint { color:#64748b; font-size:12px; font-weight:800; margin-top:6px; }
+    .text-danger { color:#b42318 !important; font-weight:850; font-size:13px; }
+    .role-cards { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:8px; }
+    .role-card { border:1px solid #e5ecef; border-radius:20px; padding:16px; cursor:pointer; transition:.2s; background:#fff; display:flex; gap:10px; align-items:center; }
+    .role-card:hover { transform:translateY(-2px); box-shadow:0 14px 26px rgba(16,42,36,.08); }
+    .role-card.active { border-color:#198754; background:#e8f7ef; }
+    .role-icon { width:44px; height:44px; border-radius:16px; background:#f3f8f6; color:#0f5132; display:flex; align-items:center; justify-content:center; font-size:23px; }
+    .role-title { font-weight:950; color:#102a24; }
+    .role-desc { color:#64748b; font-size:11px; font-weight:800; }
+    .password-wrap { position:relative; }
+    .password-toggle { position:absolute; left:8px; top:8px; border:none; background:#e8f7ef; color:#0f5132; border-radius:12px; padding:6px 10px; font-weight:900; }
+    @@media(max-width:1000px){ .form-grid{grid-template-columns:1fr;} .role-cards{grid-template-columns:1fr 1fr;} }
+    @@media(max-width:600px){ .role-cards{grid-template-columns:1fr;} }
+</style>
+
+<div class="form-page">
+    <div class="page-actions">
+        <a href="/Admin/Users" class="btn-admin btn-light-admin">↩ رجوع لإدارة المستخدمين</a>
+        <a href="/Admin/Dashboard" class="btn-admin btn-light-admin">لوحة المدير</a>
+    </div>
+
+    <div class="form-hero">
+        <h2>تعديل بيانات المستخدم</h2>
+        <p>تعديل بيانات الحساب أو الصلاحية أو كلمة المرور وحالة التفعيل.</p>
+    </div>
+
+    <form method="post" action="/Admin/Users/Edit">
+        <input type="hidden" name="UserId" value="@Model.UserId" />
+        @Html.AntiForgeryToken()
+
+        <div class="section-card">
+            <h3 class="section-title"><span></span> نوع الحساب</h3>
+            <input type="hidden" name="RoleName" id="roleInput" value="@Model.RoleName" />
+            <div class="role-cards">
+                <div class="role-card" data-role="Student" onclick="selectRole('Student')"><div class="role-icon">🎓</div><div><div class="role-title">طالب</div><div class="role-desc">رقم جامعي ومستوى</div></div></div>
+                <div class="role-card" data-role="Teacher" onclick="selectRole('Teacher')"><div class="role-icon">👨‍🏫</div><div><div class="role-title">دكتور</div><div class="role-desc">قسم أكاديمي</div></div></div>
+                <div class="role-card" data-role="Control" onclick="selectRole('Control')"><div class="role-icon">🧾</div><div><div class="role-title">كنترول</div><div class="role-desc">تصحيح واعتماد</div></div></div>
+                <div class="role-card" data-role="Admin" onclick="selectRole('Admin')"><div class="role-icon">⚙</div><div><div class="role-title">مدير</div><div class="role-desc">صلاحيات كاملة</div></div></div>
+            </div>
+            <span class="text-danger">@Html.ValidationMessageFor(m => m.RoleName)</span>
+        </div>
+
+        <div class="section-card">
+            <h3 class="section-title"><span></span> بيانات الحساب الأساسية</h3>
+            <div class="form-grid">
+                <div class="field">
+                    <label>الاسم الكامل</label>
+                    <input name="FullName" value="@Model.FullName" class="form-control-admin" />
+                    <span class="text-danger">@Html.ValidationMessageFor(m => m.FullName)</span>
+                </div>
+                <div class="field">
+                    <label>البريد الإلكتروني</label>
+                    <input name="Email" value="@Model.Email" class="form-control-admin" />
+                    <span class="text-danger">@Html.ValidationMessageFor(m => m.Email)</span>
+                </div>
+                <div class="field">
+                    <label>كلمة مرور جديدة</label>
+                    <div class="password-wrap">
+                        <input id="passwordInput" name="Password" value="@Model.Password" type="password" class="form-control-admin" />
+                        <button type="button" class="password-toggle" onclick="togglePassword()">إظهار</button>
+                    </div>
+                    <div class="hint">اترك كلمة المرور فارغة إذا لا تريد تغييرها.</div>
+                    <span class="text-danger">@Html.ValidationMessageFor(m => m.Password)</span>
+                </div>
+                <div class="field">
+                    <label>حالة الحساب</label>
+                    <select name="IsActive" class="form-control-admin">
+                        <option value="true" selected="@Model.IsActive">نشط / مسموح بالدخول</option>
+                        <option value="false" selected="@(!Model.IsActive)">معطل / ممنوع من الدخول</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-card" id="studentFields">
+            <h3 class="section-title"><span></span> بيانات الطالب</h3>
+            <div class="form-grid">
+                <div class="field">
+                    <label>الرقم الجامعي</label>
+                    <input name="StudentNumber" value="@Model.StudentNumber" class="form-control-admin" />
+                    <span class="text-danger">@Html.ValidationMessageFor(m => m.StudentNumber)</span>
+                </div>
+                <div class="field">
+                    <label>المستوى</label>
+                    <input name="Level" value="@Model.Level" class="form-control-admin" placeholder="مثال: مستوى رابع" />
+                </div>
+            </div>
+        </div>
+
+        <div class="section-card" id="teacherFields">
+            <h3 class="section-title"><span></span> بيانات الدكتور</h3>
+            <div class="form-grid">
+                <div class="field">
+                    <label>القسم</label>
+                    <input name="Department" value="@Model.Department" class="form-control-admin" placeholder="مثال: تقنية معلومات" />
+                </div>
+            </div>
+        </div>
+
+        <div class="page-actions">
+            <button type="submit" class="btn-admin btn-green">حفظ التعديلات</button>
+            <a href="/Admin/Users" class="btn-admin btn-light-admin">إلغاء</a>
+        </div>
+    </form>
+</div>
+
+<script>
+    function selectRole(role) {
+        document.getElementById('roleInput').value = role;
+        document.querySelectorAll('.role-card').forEach(c => c.classList.remove('active'));
+        const selected = document.querySelector('.role-card[data-role="' + role + '"]');
+        if (selected) selected.classList.add('active');
+        document.getElementById('studentFields').style.display = role === 'Student' ? 'block' : 'none';
+        document.getElementById('teacherFields').style.display = role === 'Teacher' ? 'block' : 'none';
+    }
+
+    function togglePassword() {
+        const input = document.getElementById('passwordInput');
+        input.type = input.type === 'password' ? 'text' : 'password';
+    }
+
+    selectRole(document.getElementById('roleInput').value || 'Student');
+</script>

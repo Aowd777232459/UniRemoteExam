@@ -1,0 +1,199 @@
+@model UniRemoteExam.Areas.Admin.ViewModels.UserManagementPageVm
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "إدارة المستخدمين";
+}
+
+<style>
+    .users-page { direction: rtl; text-align: right; }
+    .page-actions { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px; }
+    .btn-admin { border:none; border-radius:16px; padding:11px 17px; font-weight:950; text-decoration:none; display:inline-flex; align-items:center; gap:7px; cursor:pointer; transition:.2s; }
+    .btn-admin:hover { transform:translateY(-2px); text-decoration:none; }
+    .btn-green { background:#0f5132; color:white; }
+    .btn-green:hover { color:white; background:#0a3b25; }
+    .btn-gold { background:#b7791f; color:white; }
+    .btn-gold:hover { color:white; background:#946116; }
+    .btn-red { background:#b42318; color:white; }
+    .btn-red:hover { color:white; background:#8f1d14; }
+    .btn-light-admin { background:white; color:#102a24; border:1px solid #e5ecef; }
+    .btn-light-admin:hover { color:#102a24; background:#f8fbfa; }
+    .users-hero { background:linear-gradient(135deg,#061b16,#0f5132,#198754); color:white; border-radius:30px; padding:28px; margin-bottom:24px; box-shadow:0 20px 45px rgba(15,81,50,.22); position:relative; overflow:hidden; }
+    .users-hero::before { content:""; position:absolute; width:260px; height:260px; border-radius:50%; background:rgba(255,255,255,.08); left:-80px; bottom:-120px; }
+    .users-hero h2 { margin:0 0 8px; font-size:28px; font-weight:950; }
+    .users-hero p { margin:0; opacity:.9; font-weight:800; line-height:1.9; }
+    .stats-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:14px; margin-bottom:20px; }
+    .stat-card { background:white; border:1px solid #e5ecef; border-radius:22px; padding:18px; box-shadow:0 14px 30px rgba(16,42,36,.06); position:relative; overflow:hidden; min-height:122px; }
+    .stat-card::before { content:""; position:absolute; top:0; right:0; left:0; height:5px; background:linear-gradient(90deg,#0f5132,#198754,#b7791f); }
+    .stat-label { color:#64748b; font-size:12px; font-weight:950; margin-bottom:10px; }
+    .stat-value { color:#102a24; font-size:31px; font-weight:950; line-height:1; }
+    .stat-note { color:#64748b; font-size:12px; font-weight:800; margin-top:10px; }
+    .section-card { background:white; border:1px solid #e5ecef; border-radius:26px; padding:22px; box-shadow:0 16px 35px rgba(16,42,36,.07); margin-bottom:22px; position:relative; overflow:hidden; }
+    .section-card::before { content:""; position:absolute; top:0; right:0; left:0; height:6px; background:linear-gradient(90deg,#0f5132,#198754,#b7791f); }
+    .section-title { margin:0 0 18px; color:#102a24; font-size:20px; font-weight:950; display:flex; align-items:center; gap:10px; }
+    .section-title span { width:10px; height:28px; border-radius:20px; background:linear-gradient(180deg,#198754,#b7791f); display:inline-block; }
+    .filter-grid { display:grid; grid-template-columns:2fr 1fr 1fr auto auto; gap:12px; align-items:end; }
+    .form-control-admin { width:100%; border:1px solid #dce5e9; border-radius:15px; padding:12px 14px; font-weight:800; outline:none; background:#fff; }
+    .form-control-admin:focus { border-color:#198754; box-shadow:0 0 0 4px rgba(25,135,84,.10); }
+    .alert-admin { border-radius:18px; padding:15px 18px; font-weight:900; margin-bottom:18px; border:1px solid transparent; }
+    .alert-success-admin { background:#e8f7ef; color:#0f5132; border-color:#d4efe1; }
+    .alert-error-admin { background:#fde8e8; color:#b42318; border-color:#f7c9c9; }
+    .users-table { width:100%; border-collapse:separate; border-spacing:0 11px; }
+    .users-table thead th { color:#64748b; font-size:13px; font-weight:950; padding:0 12px 4px; border:0; }
+    .users-table tbody tr { background:#fff; box-shadow:0 10px 22px rgba(16,42,36,.05); }
+    .users-table tbody td { border-top:1px solid #edf2f4; border-bottom:1px solid #edf2f4; padding:15px 12px; vertical-align:middle; font-weight:800; color:#263238; }
+    .users-table tbody td:first-child { border-right:1px solid #edf2f4; border-radius:0 18px 18px 0; }
+    .users-table tbody td:last-child { border-left:1px solid #edf2f4; border-radius:18px 0 0 18px; }
+    .user-main { display:flex; align-items:center; gap:12px; }
+    .avatar { width:46px; height:46px; border-radius:16px; background:#e8f7ef; color:#0f5132; display:flex; align-items:center; justify-content:center; font-weight:950; font-size:18px; }
+    .user-name { font-weight:950; color:#102a24; margin-bottom:3px; }
+    .user-email { color:#64748b; font-size:12px; }
+    .badge-admin { border-radius:50px; padding:7px 12px; font-size:12px; font-weight:950; display:inline-flex; align-items:center; gap:6px; white-space:nowrap; }
+    .badge-green { background:#e8f7ef; color:#0f5132; }
+    .badge-gold { background:#fff4dc; color:#996515; }
+    .badge-blue { background:#e8f0ff; color:#175cd3; }
+    .badge-red { background:#fde8e8; color:#b42318; }
+    .badge-gray { background:#eef2f4; color:#475569; }
+    .row-actions { display:flex; gap:8px; flex-wrap:wrap; }
+    .btn-small { border:none; border-radius:12px; padding:8px 12px; font-weight:950; font-size:12px; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; }
+    .empty-box { background:#f8fafb; border:1px dashed #ccd6dd; border-radius:20px; padding:28px; text-align:center; color:#64748b; font-weight:950; }
+    @@media(max-width:1300px){ .stats-grid{grid-template-columns:repeat(3,1fr);} .filter-grid{grid-template-columns:1fr 1fr;} }
+    @@media(max-width:800px){ .stats-grid{grid-template-columns:1fr;} .filter-grid{grid-template-columns:1fr;} .users-table{min-width:950px;} }
+</style>
+
+<div class="users-page">
+    <div class="page-actions">
+        <a href="/Admin/Dashboard" class="btn-admin btn-light-admin">↩ لوحة المدير</a>
+        <a href="/Admin/Users/Create?roleName=Teacher" class="btn-admin btn-gold">👨‍🏫 إضافة دكتور</a>
+        <a href="/Admin/Users/Create?roleName=Student" class="btn-admin btn-green">🎓 إضافة طالب</a>
+        <a href="/Admin/Users/Create?roleName=Control" class="btn-admin btn-light-admin">🧾 إضافة كنترول</a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert-admin alert-success-admin">@TempData["Success"]</div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert-admin alert-error-admin">@TempData["Error"]</div>
+    }
+
+    <div class="users-hero">
+        <h2>إدارة المستخدمين والصلاحيات</h2>
+        <p>مركز إدارة حسابات الطلاب والدكاترة والكنترول، مع التحكم في حالة الحسابات وتعديل البيانات وكلمات المرور.</p>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card"><div class="stat-label">كل المستخدمين</div><div class="stat-value">@Model.TotalUsers</div><div class="stat-note">إجمالي الحسابات</div></div>
+        <div class="stat-card"><div class="stat-label">الطلاب</div><div class="stat-value">@Model.TotalStudents</div><div class="stat-note">حسابات الطلاب</div></div>
+        <div class="stat-card"><div class="stat-label">الدكاترة</div><div class="stat-value">@Model.TotalTeachers</div><div class="stat-note">حسابات المدرسين</div></div>
+        <div class="stat-card"><div class="stat-label">الكنترول</div><div class="stat-value">@Model.TotalControl</div><div class="stat-note">حسابات الكنترول</div></div>
+        <div class="stat-card"><div class="stat-label">المدراء</div><div class="stat-value">@Model.TotalAdmins</div><div class="stat-note">حسابات الإدارة</div></div>
+        <div class="stat-card"><div class="stat-label">نشط</div><div class="stat-value">@Model.ActiveUsers</div><div class="stat-note">مسموح بالدخول</div></div>
+        <div class="stat-card"><div class="stat-label">معطل</div><div class="stat-value">@Model.InactiveUsers</div><div class="stat-note">ممنوع من الدخول</div></div>
+    </div>
+
+    <div class="section-card">
+        <h3 class="section-title"><span></span> البحث والفلترة</h3>
+        <form method="get" action="/Admin/Users" class="filter-grid">
+            <input name="search" value="@Model.Search" class="form-control-admin" placeholder="ابحث بالاسم، البريد، الرقم الجامعي، القسم" />
+            <select name="roleFilter" class="form-control-admin">
+                <option value="All" selected="@(Model.RoleFilter == "All")">كل الصلاحيات</option>
+                <option value="Student" selected="@(Model.RoleFilter == "Student")">طلاب</option>
+                <option value="Teacher" selected="@(Model.RoleFilter == "Teacher")">دكاترة</option>
+                <option value="Control" selected="@(Model.RoleFilter == "Control")">كنترول</option>
+                <option value="Admin" selected="@(Model.RoleFilter == "Admin")">مدراء</option>
+            </select>
+            <select name="activeFilter" class="form-control-admin">
+                <option value="All" selected="@(Model.ActiveFilter == "All")">كل الحالات</option>
+                <option value="Active" selected="@(Model.ActiveFilter == "Active")">نشط</option>
+                <option value="Inactive" selected="@(Model.ActiveFilter == "Inactive")">معطل</option>
+            </select>
+            <button type="submit" class="btn-admin btn-green">بحث</button>
+            <a href="/Admin/Users" class="btn-admin btn-light-admin">إعادة ضبط</a>
+        </form>
+    </div>
+
+    <div class="section-card">
+        <h3 class="section-title"><span></span> قائمة المستخدمين</h3>
+        @if (!Model.Users.Any())
+        {
+            <div class="empty-box">لا توجد نتائج مطابقة للبحث.</div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="users-table">
+                    <thead>
+                        <tr>
+                            <th>المستخدم</th>
+                            <th>الصلاحية</th>
+                            <th>تفاصيل إضافية</th>
+                            <th>الحالة</th>
+                            <th>تاريخ الإنشاء</th>
+                            <th>إجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var u in Model.Users)
+                        {
+                            var roleClass = u.RoleName == "Teacher" ? "badge-gold" : u.RoleName == "Student" ? "badge-blue" : u.RoleName == "Control" ? "badge-green" : "badge-red";
+                            var initial = string.IsNullOrWhiteSpace(u.FullName) || u.FullName == "-" ? "؟" : u.FullName.Substring(0, 1);
+                            <tr>
+                                <td>
+                                    <div class="user-main">
+                                        <div class="avatar">@initial</div>
+                                        <div>
+                                            <div class="user-name">@u.FullName</div>
+                                            <div class="user-email">@u.Email</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><span class="badge-admin @roleClass">@u.RoleName</span></td>
+                                <td>
+                                    @if (u.RoleName == "Student")
+                                    {
+                                        <span>رقم جامعي: @(u.StudentNumber ?? "-") / مستوى: @(u.Level ?? "-")</span>
+                                    }
+                                    else if (u.RoleName == "Teacher")
+                                    {
+                                        <span>القسم: @(u.Department ?? "-")</span>
+                                    }
+                                    else
+                                    {
+                                        <span>-</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (u.IsActive)
+                                    {
+                                        <span class="badge-admin badge-green">نشط</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge-admin badge-red">معطل</span>
+                                    }
+                                </td>
+                                <td>@u.CreatedAt.ToString("yyyy-MM-dd")</td>
+                                <td>
+                                    <div class="row-actions">
+                                        <a href="/Admin/Users/Edit/@u.UserId" class="btn-small btn-gold">تعديل</a>
+                                        <form method="post" action="/Admin/Users/ToggleActive/@u.UserId" class="m-0">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn-small btn-light-admin">@(u.IsActive ? "تعطيل" : "تفعيل")</button>
+                                        </form>
+                                        <form method="post" action="/Admin/Users/Delete/@u.UserId" class="m-0">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn-small btn-red" onclick="return confirm('هل تريد حذف هذا الحساب؟ إذا كان لديه بيانات مرتبطة سيتم تعطيله بدل الحذف.');">حذف</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>

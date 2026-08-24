@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="UniRemoteExam.Client.MainPage"
+             Title="نظام الاختبارات الجامعي"
+             FlowDirection="RightToLeft"
+             BackgroundColor="{StaticResource AppBackground}">
+    <Grid RowDefinitions="Auto,*,Auto">
+        <Border Grid.Row="0" BackgroundColor="White" Stroke="#E5EDF3" StrokeThickness="1" Padding="14,10">
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                <VerticalStackLayout Grid.Column="0" Spacing="2">
+                    <Label Text="جامعة صنعاء" FontAttributes="Bold" FontSize="16" TextColor="{StaticResource TextPrimary}" />
+                    <Label Text="منصة الاختبارات الإلكترونية عن بُعد" FontSize="12" TextColor="{StaticResource TextMuted}" />
+                </VerticalStackLayout>
+                <HorizontalStackLayout Grid.Column="1" Spacing="8" VerticalOptions="Center">
+                    <BoxView x:Name="StatusDot" WidthRequest="11" HeightRequest="11" CornerRadius="6" Color="#F59E0B" />
+                    <Label x:Name="StatusLabel" Text="جارٍ التحقق" FontAttributes="Bold" FontSize="12" TextColor="{StaticResource TextMuted}" VerticalTextAlignment="Center" />
+                    <ActivityIndicator x:Name="BusyIndicator" WidthRequest="22" HeightRequest="22" Color="{StaticResource BrandSecondary}" IsRunning="False" IsVisible="False" />
+                </HorizontalStackLayout>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="1">
+            <WebView x:Name="ServerWebView"
+                     Navigating="OnWebViewNavigating"
+                     Navigated="OnWebViewNavigated" />
+            <Border x:Name="ConnectionMessage" IsVisible="False" Margin="24" Padding="26" Stroke="#E5EDF3" BackgroundColor="White" StrokeShape="RoundRectangle 24" HorizontalOptions="Center" VerticalOptions="Center" MaximumWidthRequest="520">
+                <VerticalStackLayout Spacing="14" HorizontalOptions="Center">
+                    <Label Text="تعذر الاتصال بالخادم" FontAttributes="Bold" FontSize="24" TextColor="{StaticResource TextPrimary}" HorizontalTextAlignment="Center" />
+                    <Label x:Name="ConnectionMessageText" Text="تحقق من الإنترنت ورابط الخادم." FontSize="14" TextColor="{StaticResource TextMuted}" HorizontalTextAlignment="Center" />
+                    <Button Text="إعادة المحاولة" Clicked="OnRefreshClicked" />
+                    <Button Text="إعدادات الخادم" Clicked="OnSettingsClicked" BackgroundColor="#EEF7F3" TextColor="{StaticResource BrandPrimary}" />
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+
+        <Border Grid.Row="2" BackgroundColor="White" Stroke="#E5EDF3" StrokeThickness="1" Padding="10,8">
+            <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="8">
+                <Button Grid.Column="0" Text="رجوع" Clicked="OnBackClicked" BackgroundColor="#EEF7F3" TextColor="{StaticResource BrandPrimary}" />
+                <Button Grid.Column="1" Text="الرئيسية" Clicked="OnHomeClicked" BackgroundColor="#EEF7F3" TextColor="{StaticResource BrandPrimary}" />
+                <Button Grid.Column="2" Text="تحديث" Clicked="OnRefreshClicked" BackgroundColor="#EEF7F3" TextColor="{StaticResource BrandPrimary}" />
+                <Button Grid.Column="3" Text="الإعدادات" Clicked="OnSettingsClicked" BackgroundColor="{StaticResource BrandGold}" TextColor="#102A24" />
+            </Grid>
+        </Border>
+
+        <Grid x:Name="SettingsOverlay" Grid.RowSpan="3" IsVisible="False" BackgroundColor="#99000000" Padding="20">
+            <Border BackgroundColor="White" Stroke="#E5EDF3" StrokeShape="RoundRectangle 28" Padding="28" MaximumWidthRequest="560" HorizontalOptions="Center" VerticalOptions="Center">
+                <VerticalStackLayout Spacing="16">
+                    <Label Text="ربط التطبيق بالخادم" FontAttributes="Bold" FontSize="25" TextColor="{StaticResource TextPrimary}" HorizontalTextAlignment="Center" />
+                    <Label Text="أدخل رابط النسخة المنشورة من النظام. يستخدم الجوال والكمبيوتر الخادم نفسه، ولذلك تظهر البيانات نفسها فور اتصال الجهاز بالشبكة." FontSize="14" LineHeight="1.6" TextColor="{StaticResource TextMuted}" HorizontalTextAlignment="Center" />
+                    <Entry x:Name="ServerUrlEntry" Placeholder="https://exam.example.com" Keyboard="Url" FlowDirection="LeftToRight" HorizontalTextAlignment="Left" ClearButtonVisibility="WhileEditing" />
+                    <Label x:Name="SettingsError" IsVisible="False" TextColor="#B42318" FontAttributes="Bold" FontSize="13" />
+                    <Button Text="حفظ والاتصال" Clicked="OnSaveEndpointClicked" />
+                    <Button x:Name="CancelSettingsButton" Text="إلغاء" Clicked="OnCancelSettingsClicked" BackgroundColor="#EEF7F3" TextColor="{StaticResource BrandPrimary}" />
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+    </Grid>
+</ContentPage>

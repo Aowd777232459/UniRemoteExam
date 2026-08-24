@@ -1,0 +1,158 @@
+@using Microsoft.AspNetCore.Http
+@{
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    var action = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+    var area = ViewContext.RouteData.Values["area"]?.ToString() ?? "";
+    var isLoginPage = controller == "Account" && action == "Login";
+    var userId = Context.Session.GetInt32("UserId");
+    var roleName = Context.Session.GetString("RoleName") ?? "";
+    var fullName = Context.Session.GetString("FullName") ?? "";
+    var universityLogoUrl = "/images/sanaa-university-logo.jpg";
+    var isLoggedIn = userId.HasValue && !string.IsNullOrWhiteSpace(roleName);
+    var isAdmin = isLoggedIn && roleName == "Admin";
+    var isTeacher = isLoggedIn && roleName == "Teacher";
+    var isStudent = isLoggedIn && roleName == "Student";
+    var isControl = isLoggedIn && roleName == "Control";
+    string RoleArabic(string r) => r switch
+    {
+        "Admin" => "مدير النظام",
+        "Teacher" => "دكتور",
+        "Student" => "طالب",
+        "Control" => "كنترول",
+        _ => string.IsNullOrWhiteSpace(r) ? "مستخدم" : r
+    };
+}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#073b31" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <title>@ViewData["Title"] - نظام الاختبارات الجامعي</title>
+    <link rel="manifest" href="~/manifest.webmanifest" />
+    <link rel="icon" type="image/svg+xml" href="~/images/app-icon.svg" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+@if (isLoginPage || !isLoggedIn)
+{
+    <div class="login-only-wrapper">@RenderBody()</div>
+}
+else
+{
+    <div class="mobile-header">
+        <div class="mobile-brand">🎓 نظام الاختبارات الجامعي</div>
+        <button class="mobile-menu-btn" type="button" onclick="toggleSidebar()">القائمة</button>
+    </div>
+    <div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
+    <div class="app-shell">
+        <aside id="sidebar" class="app-sidebar">
+            <div class="brand-box">
+                <div class="brand-logo brand-logo-img"><img src="@universityLogoUrl" alt="شعار جامعة صنعاء" /></div>
+                <div>
+                    <div class="brand-title">جامعة صنعاء</div>
+                    <div class="brand-subtitle">منصة الاختبارات الإلكترونية عن بُعد</div>
+                </div>
+            </div>
+            <div class="user-panel">
+                <div class="user-name">@(string.IsNullOrWhiteSpace(fullName) ? "مستخدم النظام" : fullName)</div>
+                <span class="user-role">@RoleArabic(roleName)</span>
+            </div>
+            <div class="menu-title">القائمة الرئيسية</div>
+            <a class="side-link @(controller == "Home" && string.IsNullOrWhiteSpace(area) ? "active" : "")" href="/"><span><span class="side-icon">🏠</span> الرئيسية</span><span>←</span></a>
+            @if (isAdmin)
+            {
+                <a class="side-link @(area == "Admin" && controller == "Dashboard" ? "active" : "")" href="/Admin/Dashboard"><span><span class="side-icon">📊</span> لوحة المدير</span><span>←</span></a>
+                <div class="menu-title">إدارة المستخدمين</div>
+                <a class="side-link @(area == "Admin" && controller == "Users" && action == "Index" ? "active" : "")" href="/Admin/Users"><span><span class="side-icon">👥</span> كل المستخدمين</span><span>←</span></a>
+                <a class="side-link" href="/Admin/Users/Create?roleName=Teacher"><span><span class="side-icon">👨‍🏫</span> إضافة دكتور</span><span>＋</span></a>
+                <a class="side-link" href="/Admin/Users/Create?roleName=Student"><span><span class="side-icon">🎓</span> إضافة طالب</span><span>＋</span></a>
+                <a class="side-link" href="/Admin/Users/Create?roleName=Control"><span><span class="side-icon">🧾</span> إضافة كنترول</span><span>＋</span></a>
+                <div class="menu-title">الاختبارات والتقارير</div>
+                <a class="side-link @(area == "Admin" && controller == "Approvals" ? "active" : "")" href="/Admin/Approvals/Pending"><span><span class="side-icon">✅</span> طلبات النشر</span><span>←</span></a>
+                <a class="side-link @(area == "Admin" && controller == "Courses" ? "active" : "")" href="/Admin/Courses"><span><span class="side-icon">📚</span> المقررات والتسجيل</span><span>←</span></a>
+                <a class="side-link @(area == "Admin" && controller == "Reports" ? "active" : "")" href="/Admin/Reports"><span><span class="side-icon">📑</span> التقارير</span><span>←</span></a>
+                <a class="side-link @(area == "Admin" && controller == "SystemHealth" ? "active" : "")" href="/Admin/SystemHealth"><span><span class="side-icon">🟢</span> جاهزية النظام</span><span>←</span></a>
+            }
+            @if (isTeacher)
+            {
+                <a class="side-link @(area == "Teacher" && controller == "Home" ? "active" : "")" href="/Teacher/Home"><span><span class="side-icon">📊</span> لوحة الدكتور</span><span>←</span></a>
+                <a class="side-link @(area == "Teacher" && controller == "Exams" ? "active" : "")" href="/Teacher/Exams"><span><span class="side-icon">📝</span> الاختبارات</span><span>←</span></a>
+            }
+            @if (isStudent)
+            {
+                <a class="side-link @(area == "Student" && controller == "Home" ? "active" : "")" href="/Student/Home"><span><span class="side-icon">🎓</span> لوحة الطالب</span><span>←</span></a>
+                <a class="side-link @(area == "Student" && controller == "Exams" ? "active" : "")" href="/Student/Exams"><span><span class="side-icon">📝</span> اختباراتي</span><span>←</span></a>
+                <a class="side-link @(area == "Student" && controller == "Results" ? "active" : "")" href="/Student/Results"><span><span class="side-icon">🏆</span> نتائجي</span><span>←</span></a>
+            }
+            @if (isControl)
+            {
+                <a class="side-link @(area == "Control" && controller == "Home" ? "active" : "")" href="/Control/Home"><span><span class="side-icon">🧾</span> لوحة الكنترول</span><span>←</span></a>
+                <a class="side-link @(area == "Control" && controller == "Students" ? "active" : "")" href="/Control/Students"><span><span class="side-icon">👥</span> إدارة الطلاب</span><span>←</span></a>
+                <a class="side-link @(area == "Control" && controller == "Attempts" ? "active" : "")" href="/Control/Attempts"><span><span class="side-icon">🛡️</span> المحاولات والتصحيح</span><span>←</span></a>
+            }
+            <div class="menu-title">الحساب</div>
+            <a class="side-link" href="/Account/ChangePassword"><span><span class="side-icon">🔐</span> تغيير كلمة المرور</span><span>←</span></a>
+            <form method="post" action="/Account/LogoutPost" style="margin:0">@Html.AntiForgeryToken()<button type="submit" class="side-link logout" style="width:100%;border:0;text-align:right"><span><span class="side-icon">🚪</span> تسجيل الخروج</span><span>×</span></button></form>
+        </aside>
+        <section class="main-area">
+            <header class="topbar">
+                <div class="topbar-title-main">
+                    <div class="topbar-logo-mini"><img src="@universityLogoUrl" alt="شعار جامعة صنعاء" /></div>
+                    <div class="page-heading">
+                    <div class="eyebrow">نظام جامعي لإدارة الاختبارات عن بُعد</div>
+                    <h1>@(ViewData["Title"] ?? "نظام الاختبارات الجامعي")</h1>
+                    </div>
+                </div>
+                <div class="topbar-actions">
+                    <a class="topbar-action-btn ghost" href="/">الرئيسية</a>
+                    <a class="topbar-action-btn ghost" href="javascript:history.back()">رجوع</a>
+                    <form method="post" action="/Account/LogoutPost" style="display:inline">@Html.AntiForgeryToken()<button type="submit" class="topbar-action-btn danger" style="border:0">خروج</button></form>
+                    <div class="topbar-status"><span class="status-dot"></span><span>جلسة آمنة</span></div>
+                </div>
+            </header>
+            <main class="content-body">
+                @RenderBody()
+            </main>
+            <footer class="system-footer">نظام الاختبارات الإلكترونية عن بُعد - مشروع تخرج 2026 - جامعة صنعاء</footer>
+        </section>
+    </div>
+}
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+<script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => navigator.serviceWorker.register('/service-worker.js'));
+    }
+</script>
+<script>
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        if (!sidebar || !overlay) return;
+        sidebar.classList.toggle('open');
+        overlay.classList.toggle('show');
+    }
+
+    document.addEventListener('click', function (event) {
+        const link = event.target.closest('a');
+        if (!link) return;
+        const text = (link.textContent || '').trim();
+        const isBackLink = text.includes('رجوع') || text.includes('عودة');
+        if (!isBackLink || link.dataset.noSmartBack === 'true') return;
+
+        const href = link.getAttribute('href') || '';
+        if (!href || href === '#' || href.startsWith('javascript:')) return;
+
+        if (window.history.length > 1) {
+            event.preventDefault();
+            window.history.back();
+        }
+    });
+</script>
+@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

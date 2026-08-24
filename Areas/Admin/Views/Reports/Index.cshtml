@@ -1,0 +1,352 @@
+@model List<UniRemoteExam.Data.Exam>
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "التقارير الإدارية";
+}
+
+<style>
+    .reports-page {
+        direction: rtl;
+        text-align: right;
+    }
+
+    .report-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 22px;
+    }
+
+    .report-action-btn {
+        border: none;
+        border-radius: 15px;
+        padding: 11px 18px;
+        font-weight: 950;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        transition: .2s;
+        box-shadow: 0 10px 22px rgba(16,42,36,.06);
+    }
+
+        .report-action-btn:hover {
+            transform: translateY(-2px);
+            text-decoration: none;
+        }
+
+    .report-action-main {
+        background: #0f5132;
+        color: white;
+    }
+
+        .report-action-main:hover {
+            background: #0a3b25;
+            color: white;
+        }
+
+    .report-action-light {
+        background: white;
+        color: #102a24;
+        border: 1px solid #e5ecef;
+    }
+
+        .report-action-light:hover {
+            background: #f8fbfa;
+            color: #102a24;
+        }
+
+    .reports-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 18px;
+        margin-bottom: 22px;
+    }
+
+    .report-card {
+        background: #fff;
+        border: 1px solid #e5ecef;
+        border-radius: 24px;
+        padding: 24px;
+        box-shadow: 0 16px 35px rgba(16,42,36,.07);
+        position: relative;
+        overflow: hidden;
+    }
+
+        .report-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            left: 0;
+            height: 6px;
+            background: linear-gradient(90deg, #0f5132, #198754, #b7791f);
+        }
+
+    .report-label {
+        color: #64748b;
+        font-size: 14px;
+        font-weight: 900;
+        margin-bottom: 12px;
+    }
+
+    .report-value {
+        color: #102a24;
+        font-size: 38px;
+        font-weight: 950;
+    }
+
+    .report-note {
+        color: #64748b;
+        font-size: 13px;
+        font-weight: 800;
+        margin-top: 10px;
+    }
+
+    .panel {
+        background: #fff;
+        border: 1px solid #e5ecef;
+        border-radius: 24px;
+        padding: 22px;
+        box-shadow: 0 14px 32px rgba(16,42,36,.06);
+    }
+
+    .panel-title-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 18px;
+    }
+
+    .panel-title {
+        font-weight: 950;
+        margin: 0;
+        color: #102a24;
+        font-size: 20px;
+    }
+
+    .panel-subtitle {
+        color: #64748b;
+        font-size: 13px;
+        font-weight: 800;
+        margin-top: 5px;
+    }
+
+    .table-admin {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 10px;
+    }
+
+        .table-admin th {
+            color: #64748b;
+            font-size: 13px;
+            font-weight: 950;
+            padding: 0 12px 5px;
+            white-space: nowrap;
+        }
+
+        .table-admin td {
+            background: #fff;
+            border-top: 1px solid #edf2f4;
+            border-bottom: 1px solid #edf2f4;
+            padding: 14px 12px;
+            font-weight: 800;
+            vertical-align: middle;
+        }
+
+            .table-admin td:first-child {
+                border-right: 1px solid #edf2f4;
+                border-radius: 0 16px 16px 0;
+            }
+
+            .table-admin td:last-child {
+                border-left: 1px solid #edf2f4;
+                border-radius: 16px 0 0 16px;
+            }
+
+    .btn-admin {
+        border: none;
+        border-radius: 15px;
+        padding: 9px 14px;
+        font-weight: 950;
+        text-decoration: none;
+        display: inline-block;
+        white-space: nowrap;
+    }
+
+    .btn-green {
+        background: #0f5132;
+        color: #fff;
+    }
+
+        .btn-green:hover {
+            background: #0a3b25;
+            color: #fff;
+        }
+
+    .badge-admin {
+        border-radius: 50px;
+        padding: 6px 11px;
+        font-weight: 900;
+        display: inline-block;
+        font-size: 12px;
+    }
+
+    .badge-published {
+        background: #e8f7ef;
+        color: #0f5132;
+    }
+
+    .badge-draft {
+        background: #fff4dc;
+        color: #996515;
+    }
+
+    @@media (max-width: 1100px) {
+        .reports-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @@media (max-width: 600px) {
+        .reports-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .report-actions {
+            flex-direction: column;
+        }
+
+        .report-action-btn {
+            justify-content: center;
+        }
+    }
+</style>
+
+<div class="reports-page">
+
+    <div class="report-actions">
+        <a href="/Admin/Dashboard" class="report-action-btn report-action-main">
+            ↩ رجوع للوحة المدير
+        </a>
+
+        <a href="/Admin/Users" class="report-action-btn report-action-light">
+            👥 إدارة المستخدمين
+        </a>
+
+        <a href="/Admin/Approvals/Pending" class="report-action-btn report-action-light">
+            ✅ طلبات النشر
+        </a>
+
+        <a href="/Admin/Audit" class="report-action-btn report-action-light">
+            🧾 سجل العمليات
+        </a>
+    </div>
+
+    <div class="reports-grid">
+        <div class="report-card">
+            <div class="report-label">إجمالي الطلاب</div>
+            <div class="report-value">@ViewBag.TotalStudents</div>
+            <div class="report-note">حسابات الطلاب</div>
+        </div>
+
+        <div class="report-card">
+            <div class="report-label">إجمالي الدكاترة</div>
+            <div class="report-value">@ViewBag.TotalTeachers</div>
+            <div class="report-note">حسابات هيئة التدريس</div>
+        </div>
+
+        <div class="report-card">
+            <div class="report-label">موظفو الكنترول</div>
+            <div class="report-value">@ViewBag.TotalControl</div>
+            <div class="report-note">حسابات الكنترول</div>
+        </div>
+
+        <div class="report-card">
+            <div class="report-label">إجمالي الاختبارات</div>
+            <div class="report-value">@ViewBag.TotalExams</div>
+            <div class="report-note">كل الاختبارات المنشأة</div>
+        </div>
+
+        <div class="report-card">
+            <div class="report-label">اختبارات منشورة</div>
+            <div class="report-value">@ViewBag.PublishedExams</div>
+            <div class="report-note">متاحة للطلاب</div>
+        </div>
+
+        <div class="report-card">
+            <div class="report-label">إجمالي المحاولات</div>
+            <div class="report-value">@ViewBag.TotalAttempts</div>
+            <div class="report-note">كل محاولات الطلاب</div>
+        </div>
+
+        <div class="report-card">
+            <div class="report-label">محاولات بدأت</div>
+            <div class="report-value">@ViewBag.StartedAttempts</div>
+            <div class="report-note">داخل الاختبارات</div>
+        </div>
+
+        <div class="report-card">
+            <div class="report-label">طلبات نشر معلقة</div>
+            <div class="report-value">@ViewBag.PendingRequests</div>
+            <div class="report-note">تحتاج مراجعة</div>
+        </div>
+    </div>
+
+    <div class="panel">
+        <div class="panel-title-row">
+            <div>
+                <h3 class="panel-title">تقارير الاختبارات</h3>
+                <div class="panel-subtitle">
+                    عرض تقارير كل اختبار، حالة النشر، الدكتور، والمقرر المرتبط به.
+                </div>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table-admin">
+                <thead>
+                    <tr>
+                        <th>الاختبار</th>
+                        <th>المقرر</th>
+                        <th>الدكتور</th>
+                        <th>الحالة</th>
+                        <th>تاريخ الإنشاء</th>
+                        <th>التقرير</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var e in Model)
+                    {
+                        <tr>
+                            <td>@e.Title</td>
+                            <td>@(e.Course?.Name ?? e.CourseName ?? "-")</td>
+                            <td>@(e.Teacher?.FullName ?? e.Teacher?.Email ?? "-")</td>
+                            <td>
+                                @if (e.IsPublished)
+                                {
+                                    <span class="badge-admin badge-published">منشور</span>
+                                }
+                                else
+                                {
+                                    <span class="badge-admin badge-draft">غير منشور</span>
+                                }
+                            </td>
+                            <td>@e.CreatedAt.ToString("yyyy-MM-dd")</td>
+                            <td>
+                                <a href="/Admin/Reports/Exam/@e.ExamId" class="btn-admin btn-green">
+                                    فتح التقرير
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>

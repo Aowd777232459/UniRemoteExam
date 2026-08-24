@@ -1,0 +1,20 @@
+UniRemoteExam v6 Final - تقرير تحقق الحزمة
+=========================================
+
+تم:
+- فحص توازن أقواس جميع ملفات C# باستخدام محلل tokens: PASS.
+- فحص نماذج POST: جميعها تحتوي رمز Anti-forgery، مع فلتر عام إضافي.
+- فحص عدم وجود مجلدات bin / obj / .vs: PASS.
+- فحص عدم وجود Connection String خاص بجهاز المطور أو API keys: PASS.
+- التحقق من صحة كلمات مرور بيانات العرض المشفرة بصيغة ASP.NET Identity V3: PASS.
+- إنشاء مخططات ERD / Workflow / Architecture / Use Cases بصيغ PNG وSVG.
+- تجهيز سكربت تثبيت جديد وسكربت ترقية v5 وسكربت مسح منفصل للعرض.
+
+لم يتم:
+- تنفيذ dotnet restore/build لأن بيئة إعداد الحزمة لا تحتوي على .NET SDK.
+- تنفيذ SQL Server حي لأن البيئة لا تحتوي على SQL Server.
+
+الإجراء المطلوب على جهاز التسليم:
+1) تشغيل VERIFY_V6.ps1.
+2) تشغيل Database/CREATE_DATABASE_FULL.sql للتثبيت الجديد، أو 04_Upgrade_From_v5.sql بعد نسخة احتياطية.
+3) تنفيذ حالات Documentation/Test_Report_AR.md.

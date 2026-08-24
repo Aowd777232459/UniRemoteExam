@@ -1,0 +1,22 @@
+@model UniRemoteExam.Areas.Control.ViewModels.StudentProvisionVm
+@{
+    ViewData["Title"] = "حسابات الطلاب";
+}
+<div style="max-width:1150px;margin:24px auto;direction:rtl;padding:0 14px">
+    <div style="background:linear-gradient(135deg,#0b3a2e,#16725a);color:#fff;border-radius:24px;padding:24px"><h1 class="fw-bold">إدارة حسابات الطلاب</h1><div>لا يتم حفظ كلمات المرور في ملفات. تظهر كلمة المرور المؤقتة مرة واحدة فقط.</div></div>
+    @if(TempData["Success"] != null){<div class="alert alert-success mt-3">@TempData["Success"]</div>}
+    @if(TempData["Error"] != null){<div class="alert alert-danger mt-3">@TempData["Error"]</div>}
+    @if(TempData["GeneratedEmail"] != null){<div class="alert alert-warning mt-3"><b>@TempData["GeneratedName"]</b><br/>البريد: @TempData["GeneratedEmail"]<br/>كلمة المرور المؤقتة: <b>@TempData["GeneratedPassword"]</b></div>}
+    <div class="row g-3 mt-1">
+        <div class="col-lg-4"><div class="card border-0 shadow-sm rounded-4"><div class="card-body"><h4 class="fw-bold">إضافة طالب</h4>
+            <form method="post" action="/Control/Students/Create">@Html.AntiForgeryToken()
+                <input name="fullName" class="form-control mb-2" placeholder="الاسم الكامل" required />
+                <input name="studentNumber" class="form-control mb-2" placeholder="الرقم الجامعي - اختياري" />
+                <input name="level" class="form-control mb-2" placeholder="المستوى" />
+                <input name="password" type="password" class="form-control mb-2" placeholder="كلمة مرور مؤقتة قوية" required />
+                <button class="btn btn-success w-100">إنشاء الحساب</button>
+            </form><a href="/Control/Students/ExportCsv" class="btn btn-outline-success w-100 mt-2">تصدير الحسابات دون كلمات مرور</a>
+        </div></div></div>
+        <div class="col-lg-8"><div class="card border-0 shadow-sm rounded-4"><div class="card-body table-responsive"><table class="table"><thead><tr><th>الرقم</th><th>الاسم</th><th>البريد</th><th>الحالة</th></tr></thead><tbody>@foreach(var s in Model.Students){<tr><td>@s.StudentNumber</td><td>@s.FullName</td><td>@s.Email</td><td>@(s.IsActive?"نشط":"موقوف")</td></tr>}</tbody></table></div></div></div>
+    </div>
+</div>

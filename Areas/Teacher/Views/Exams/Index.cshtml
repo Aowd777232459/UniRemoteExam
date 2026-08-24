@@ -1,0 +1,160 @@
+@model List<UniRemoteExam.Data.Exam>
+@{
+    ViewData["Title"] = "لوحة الدكتور - اختباراتي";
+    var examsCount = Model?.Count ?? 0;
+    var publishedCount = Model?.Count(x => x.IsPublished) ?? 0;
+    var pendingIds = (ViewBag.PendingExamIds as IEnumerable<int>) ?? Enumerable.Empty<int>();
+    var pendingCount = pendingIds.Count();
+    var draftCount = examsCount - publishedCount - pendingCount;
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success" style="max-width:1200px;margin:18px auto -6px;border-radius:18px;font-weight:900;">@TempData["Success"]</div>
+}
+@if (TempData["Info"] != null)
+{
+    <div class="alert alert-info" style="max-width:1200px;margin:18px auto -6px;border-radius:18px;font-weight:900;">@TempData["Info"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger" style="max-width:1200px;margin:18px auto -6px;border-radius:18px;font-weight:900;">@TempData["Error"]</div>
+}
+
+<div style="max-width:1200px;margin:24px auto;direction:rtl;text-align:right;padding:0 14px;">
+
+    <div style="background:linear-gradient(135deg,#0b3a2e 0%,#0f5a47 55%,#16725a 100%);border-radius:26px;padding:28px;color:#fff;box-shadow:0 18px 40px rgba(11,58,46,.22);overflow:hidden;position:relative;">
+        <div style="position:absolute;left:-40px;top:-40px;width:180px;height:180px;background:rgba(255,255,255,.07);border-radius:50%;"></div>
+        <div style="position:absolute;left:90px;bottom:-60px;width:160px;height:160px;background:rgba(255,255,255,.05);border-radius:50%;"></div>
+
+        <div style="position:relative;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;">
+            <div>
+                <div style="font-size:14px;font-weight:700;opacity:.9;margin-bottom:8px;">لوحة التحكم الأكاديمية</div>
+                <div style="font-size:30px;font-weight:900;line-height:1.4;">مرحبًا دكتور 👨‍🏫</div>
+                <div style="font-size:15px;opacity:.92;margin-top:8px;">
+                    من هنا يمكنك إنشاء الاختبارات، إدارة الأسئلة، وتجهيز الاختبارات للنشر بشكل احترافي.
+                </div>
+            </div>
+
+            <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                <a href="/Teacher/Exams/Create"
+                   style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center;padding:14px 22px;border-radius:16px;background:linear-gradient(90deg,#d4af37,#f4d77c);color:#0b3a2e;font-weight:900;box-shadow:0 10px 24px rgba(212,175,55,.35);border:0;min-width:180px;">
+                    ✨ إنشاء اختبار جديد
+                </a>
+
+                <a href="/"
+                   style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center;padding:14px 22px;border-radius:16px;background:rgba(255,255,255,.12);color:#fff;font-weight:800;border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(4px);min-width:140px;">
+                    ⬅ رجوع للرئيسية
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="teacher-stats-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:18px;">
+        <div style="background:#fff;border:1px solid #edf1f7;border-radius:20px;padding:18px;box-shadow:0 8px 22px rgba(15,23,42,.05);">
+            <div style="color:#6b7280;font-weight:700;">إجمالي الاختبارات</div>
+            <div style="font-size:30px;font-weight:900;color:#0b3a2e;margin-top:8px;">@examsCount</div>
+        </div>
+
+        <div style="background:#fff;border:1px solid #edf1f7;border-radius:20px;padding:18px;box-shadow:0 8px 22px rgba(15,23,42,.05);">
+            <div style="color:#6b7280;font-weight:700;">الاختبارات المنشورة</div>
+            <div style="font-size:30px;font-weight:900;color:#0f8b6d;margin-top:8px;">@publishedCount</div>
+        </div>
+
+        <div style="background:#fff;border:1px solid #edf1f7;border-radius:20px;padding:18px;box-shadow:0 8px 22px rgba(15,23,42,.05);">
+            <div style="color:#6b7280;font-weight:700;">طلبات قيد المراجعة</div>
+            <div style="font-size:30px;font-weight:900;color:#c28a15;margin-top:8px;">@pendingCount</div>
+        </div>
+    </div>
+
+    <div style="margin-top:18px;background:#fff;border:1px solid #edf1f7;border-radius:22px;box-shadow:0 12px 28px rgba(15,23,42,.05);overflow:hidden;">
+        <div style="padding:18px 20px;border-bottom:1px solid #edf1f7;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+            <div>
+                <div style="font-size:22px;font-weight:900;color:#0b3a2e;">📘 اختباراتي</div>
+                <div style="color:#6b7280;margin-top:6px;">إدارة سريعة ومنظمة لجميع اختبارات الدكتور</div>
+            </div>
+
+            <a href="/Teacher/Exams/Create"
+               style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center;padding:12px 18px;border-radius:14px;background:#0b3a2e;color:#fff;font-weight:900;box-shadow:0 8px 18px rgba(11,58,46,.2);">
+                + إضافة اختبار
+            </a>
+        </div>
+
+        <div style="padding:18px;">
+            @if (Model == null || !Model.Any())
+            {
+                <div style="background:#f8fafc;border:1px dashed #cfd8e3;border-radius:18px;padding:30px;text-align:center;">
+                    <div style="font-size:48px;">📝</div>
+                    <div style="font-size:22px;font-weight:900;color:#0b3a2e;margin-top:8px;">لا توجد اختبارات بعد</div>
+                    <div style="color:#6b7280;margin-top:8px;">ابدأ بإنشاء أول اختبار لتظهر هنا بشكل منظم وأنيق.</div>
+
+                    <a href="/Teacher/Exams/Create"
+                       style="margin-top:18px;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;padding:14px 22px;border-radius:16px;background:linear-gradient(90deg,#0b3a2e,#0f5a47);color:#fff;font-weight:900;box-shadow:0 10px 24px rgba(11,58,46,.22);">
+                        ✨ إنشاء اختبار جديد
+                    </a>
+                </div>
+            }
+            else
+            {
+                <div class="teacher-exams-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;">
+                    @foreach (var e in Model.OrderByDescending(x => x.ExamId))
+                    {
+                        var isPending = pendingIds.Contains(e.ExamId);
+                        <div style="background:linear-gradient(180deg,#ffffff 0%,#fbfcfe 100%);border:1px solid #e7edf5;border-radius:20px;padding:18px;box-shadow:0 12px 24px rgba(15,23,42,.05);display:flex;flex-direction:column;gap:12px;">
+                            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
+                                <div>
+                                    <div style="font-size:20px;font-weight:900;color:#0b3a2e;">@e.Title</div>
+                                    <div style="margin-top:6px;color:#6b7280;font-size:14px;">
+                                        المادة:
+                                        <b style="color:#111827;">@(e.Course?.Name ?? e.CourseName ?? "غير محددة")</b>
+                                    </div>
+                                </div>
+
+                                <span style="padding:8px 12px;border-radius:999px;font-size:13px;font-weight:900;@(e.IsPublished ? "background:#dcfce7;color:#166534;" : (isPending ? "background:#fef3c7;color:#92400e;" : "background:#fff7ed;color:#b45309;"))">
+                                    @(e.IsPublished ? "منشور" : (isPending ? "قيد المراجعة" : "مسودة"))
+                                </span>
+                            </div>
+
+                            <div style="display:flex;gap:10px;flex-wrap:wrap;color:#6b7280;font-size:14px;">
+                                <div style="background:#f8fafc;border:1px solid #eef2f7;padding:8px 12px;border-radius:12px;">رقم الاختبار: <b style="color:#0b3a2e;">#@e.ExamId</b></div>
+                            </div>
+
+                            <div style="margin-top:auto;display:flex;gap:10px;flex-wrap:wrap;">
+                                @if (!e.IsPublished && !isPending)
+                                {
+                                    <a href="/Teacher/Exams/Edit/@e.ExamId"
+                                       style="flex:1;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;padding:13px 16px;border-radius:15px;background:linear-gradient(90deg,#0b3a2e,#0f5a47);color:#fff;font-weight:900;box-shadow:0 10px 22px rgba(11,58,46,.18);min-width:180px;">
+                                        ⚙ إدارة الأسئلة
+                                    </a>
+
+                                    <a href="/Teacher/AnswerKey/Manage?examId=@e.ExamId"
+                                       style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center;padding:13px 16px;border-radius:15px;border:2px solid rgba(212,175,55,.5);background:#fffdf5;color:#8a6310;font-weight:900;min-width:150px;">
+                                        ✅ نموذج الإجابة
+                                    </a>
+                                }
+                                else
+                                {
+                                    <div style="flex:1;background:#f8fafc;border:1px solid #e5e7eb;border-radius:15px;padding:13px 16px;color:#64748b;font-weight:900;text-align:center;min-width:220px;">
+                                        🔒 تم إغلاق شاشة بناء الأسئلة
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    @@media (max-width: 992px) {
+        .teacher-exams-grid {
+            grid-template-columns: 1fr !important;
+        }
+
+        .teacher-stats-grid {
+            grid-template-columns: 1fr !important;
+        }
+    }
+</style>

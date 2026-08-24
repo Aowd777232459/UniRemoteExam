@@ -1,0 +1,17 @@
+@model UniRemoteExam.Areas.Student.ViewModels.StudentReviewVm
+@{
+    ViewData["Title"] = "مراجعة الإجابات";
+}
+<div style="max-width:1000px;margin:24px auto;direction:rtl;padding:0 14px">
+    <div style="background:linear-gradient(135deg,#0b3a2e,#16725a);color:white;border-radius:24px;padding:24px">
+        <h1 class="fw-bold">مراجعة: @Model.ExamTitle</h1><div>@Model.CourseName</div><div class="mt-2">النتيجة: @Model.FinalScore / @Model.MaximumScore — @Model.Percentage%</div>
+    </div>
+    @foreach(var q in Model.Questions){
+        <div class="card border-0 shadow-sm rounded-4 mt-3"><div class="card-body">
+            <div class="d-flex justify-content-between"><h5 class="fw-bold">السؤال @q.SortOrder: @q.Body</h5><span class="badge @(q.IsCorrect?"bg-success":"bg-secondary")">@q.AwardedScore / @q.Points</span></div>
+            <div class="p-3 bg-light rounded-3 mt-2"><b>إجابتك:</b><div style="white-space:pre-wrap">@q.StudentAnswer</div></div>
+            <div class="p-3 rounded-3 mt-2" style="background:#ecfdf5"><b>الإجابة الصحيحة/النموذجية:</b><div style="white-space:pre-wrap">@q.CorrectAnswer</div></div>
+        </div></div>
+    }
+    <a class="btn btn-outline-success mt-3" href="/Student/Results">العودة للنتائج</a>
+</div>

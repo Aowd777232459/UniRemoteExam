@@ -1,0 +1,37 @@
+@using UniRemoteExam.Data
+@{
+    ViewData["Title"] = "إنشاء اختبار جديد";
+    var courses = ViewBag.Courses as List<Course> ?? new();
+}
+<div style="max-width:900px;margin:24px auto;direction:rtl;text-align:right;padding:0 14px;">
+    <div style="background:linear-gradient(135deg,#0b3a2e,#16725a);border-radius:24px;padding:26px;color:#fff;box-shadow:0 18px 40px rgba(11,58,46,.22);">
+        <div style="font-size:14px;font-weight:700;opacity:.9;">منطقة الدكتور</div>
+        <div style="font-size:30px;font-weight:900;margin-top:6px;">إنشاء اختبار جديد</div>
+        <div style="margin-top:8px;opacity:.92;">الوقت المدخل يعامل كتوقيت صنعاء ويخزن في قاعدة البيانات بتوقيت UTC.</div>
+    </div>
+    <div style="margin-top:18px;background:#fff;border:1px solid #e7edf5;border-radius:22px;box-shadow:0 12px 28px rgba(15,23,42,.05);padding:22px;">
+        @if(ViewBag.Error != null){<div class="alert alert-danger">@ViewBag.Error</div>}
+        @if(!courses.Any()){
+            <div class="alert alert-warning">لا يوجد مقرر مرتبط بحسابك. اطلب من المدير إنشاء المقرر وربطه بك قبل إنشاء الاختبار.</div>
+        }
+        <form method="post" action="/Teacher/Exams/Create">
+            @Html.AntiForgeryToken()
+            <div class="row g-3">
+                <div class="col-12"><label class="fw-bold mb-2">عنوان الاختبار</label><input name="title" class="form-control form-control-lg" required /></div>
+                <div class="col-12"><label class="fw-bold mb-2">المقرر</label><select name="courseId" class="form-select form-select-lg" required><option value="">اختر المقرر</option>@foreach(var c in courses){<option value="@c.CourseId">@c.Code - @c.Name (@c.AcademicTerm.Name)</option>}</select></div>
+                <div class="col-md-6"><label class="fw-bold mb-2">بداية الإتاحة — توقيت صنعاء</label><input name="availableFrom" type="datetime-local" class="form-control" /></div>
+                <div class="col-md-6"><label class="fw-bold mb-2">نهاية الإتاحة — توقيت صنعاء</label><input name="availableTo" type="datetime-local" class="form-control" /></div>
+                <div class="col-md-4"><label class="fw-bold mb-2">عدد المحاولات</label><input name="maxAttempts" type="number" min="1" max="10" value="1" class="form-control" /></div>
+                <div class="col-md-4"><label class="fw-bold mb-2">المدة الكلية بالدقائق</label><input name="durationMinutes" type="number" min="5" max="600" value="60" class="form-control" /></div>
+                <div class="col-md-4"><label class="fw-bold mb-2">نسبة النجاح %</label><input name="passPercentage" type="number" min="0" max="100" step="0.01" value="50" class="form-control" /></div>
+                <div class="col-12"><div class="p-3 rounded-4" style="background:#f8fafc;border:1px solid #e7edf5;display:grid;gap:10px">
+                    <label class="fw-bold"><input name="shuffleQuestions" type="checkbox" value="true" /> عشوائية الأسئلة</label>
+                    <label class="fw-bold"><input name="shuffleChoices" type="checkbox" value="true" /> عشوائية الخيارات</label>
+                    <label class="fw-bold"><input name="showCorrectAnswers" type="checkbox" value="true" /> عرض الإجابات الصحيحة بعد الاعتماد</label>
+                    <input name="autoSubmitOnExpiry" type="hidden" value="true" /><div class="fw-bold text-success">✓ التسليم التلقائي عند انتهاء المدة سياسة إلزامية لحماية سلامة الاختبار.</div>
+                </div></div>
+                <div class="col-12 d-flex gap-2"><button class="btn btn-success btn-lg" @(courses.Any()?null:"disabled")>إنشاء الاختبار</button><a class="btn btn-outline-secondary btn-lg" href="/Teacher/Exams">إلغاء</a></div>
+            </div>
+        </form>
+    </div>
+</div>

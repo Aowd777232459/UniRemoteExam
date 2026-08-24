@@ -1,0 +1,117 @@
+@{
+    ViewData["Title"] = "لوحة الكنترول";
+}
+
+<div class="container mt-4">
+
+    <div class="app-card p-4 mb-3">
+        <h3 class="section-title mb-1">لوحة الكنترول - متابعة التصحيح والنتائج</h3>
+        <div class="small-muted">تحديث تلقائي كل 5 ثواني لمراقبة الطلاب أثناء الامتحان وحالة النظام.</div>
+    </div>
+
+    <!-- ✅ شريط رقمي: الطلاب الذين يمارسون الآن -->
+    <div class="app-card p-4 mb-3">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <div>
+                <div class="fw-bold">الطلاب الذين يمارسون الامتحان الآن</div>
+                <div class="small-muted">Attempt Status = Started</div>
+            </div>
+            <div class="text-end">
+                <div style="font-size:28px; font-weight:800; color:#0b3a2e" id="liveTaking">0</div>
+                <div class="small-muted">طالب</div>
+            </div>
+        </div>
+
+        <div class="progress" style="height:14px; border-radius:12px;">
+            <div class="progress-bar" id="liveBar" role="progressbar" style="width:0%"></div>
+        </div>
+        <div class="small-muted mt-2">
+            نسبة الممتحنين الآن: <b id="livePercent">0%</b>
+        </div>
+    </div>
+
+    <!-- ✅ كروت إدارية -->
+    <div class="row g-3">
+        <div class="col-md-6 col-lg-3">
+            <div class="app-card p-3">
+                <div class="small-muted">طلاب (Active)</div>
+                <div class="section-title" style="font-size:26px" id="students">0</div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="app-card p-3">
+                <div class="small-muted">دكاترة (Active)</div>
+                <div class="section-title" style="font-size:26px" id="teachers">0</div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="app-card p-3">
+                <div class="small-muted">اختبارات منشورة</div>
+                <div class="section-title" style="font-size:26px" id="publishedExams">0</div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="app-card p-3">
+                <div class="small-muted">طلبات نشر Pending</div>
+                <div class="section-title" style="font-size:26px" id="pendingPublish">0</div>
+                <a class="btn btn-sm btn-brand mt-2 w-100" href="/Admin/Approvals/Pending">فتح الطلبات</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ✅ مؤشرات حالة التصحيح -->
+    <div class="row g-3 mt-1">
+        <div class="col-md-6 col-lg-4">
+            <div class="app-card p-3">
+                <div class="small-muted">محاولات Submitted (بانتظار الكنترول)</div>
+                <div class="section-title" style="font-size:26px" id="submitted">0</div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+            <div class="app-card p-3">
+                <div class="small-muted">محاولات Closed (تم اعتمادها)</div>
+                <div class="section-title" style="font-size:26px" id="closed">0</div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+            <div class="app-card p-3">
+                <div class="small-muted">آخر تحديث</div>
+                <div class="section-title" style="font-size:18px" id="lastUpdate">---</div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    async function loadStats(){
+        const res = await fetch("/Admin/Dashboard/Stats");
+        if(!res.ok) return;
+
+        const s = await res.json();
+
+        document.getElementById("liveTaking").innerText = s.liveTaking;
+        document.getElementById("submitted").innerText = s.submitted;
+        document.getElementById("closed").innerText = s.closed;
+        document.getElementById("students").innerText = s.students;
+        document.getElementById("teachers").innerText = s.teachers;
+        document.getElementById("publishedExams").innerText = s.publishedExams;
+        document.getElementById("pendingPublish").innerText = s.pendingPublish;
+
+        document.getElementById("livePercent").innerText = (s.livePercent ?? 0) + "%";
+        const bar = document.getElementById("liveBar");
+        bar.style.width = (s.livePercent ?? 0) + "%";
+        bar.className = "progress-bar " + ((s.livePercent ?? 0) >= 60 ? "bg-danger" : ((s.livePercent ?? 0) >= 30 ? "bg-warning" : "bg-success"));
+
+        const now = new Date();
+        document.getElementById("lastUpdate").innerText = now.toLocaleString();
+    }
+
+    loadStats();
+    setInterval(loadStats, 5000);
+</script>

@@ -1,0 +1,71 @@
+name: Build Android APK
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+      ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+      ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+      ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Install Android workload
+        run: dotnet workload install maui-android
+
+      - name: Validate signing secrets
+        shell: bash
+        run: |
+          test -n "$ANDROID_KEYSTORE_BASE64" || { echo "Missing ANDROID_KEYSTORE_BASE64"; exit 1; }
+          test -n "$ANDROID_KEY_ALIAS" || { echo "Missing ANDROID_KEY_ALIAS"; exit 1; }
+          test -n "$ANDROID_KEYSTORE_PASSWORD" || { echo "Missing ANDROID_KEYSTORE_PASSWORD"; exit 1; }
+          test -n "$ANDROID_KEY_PASSWORD" || { echo "Missing ANDROID_KEY_PASSWORD"; exit 1; }
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/uniremoteexam.keystore"
+
+      - name: Restore Android app
+        run: dotnet restore Apps/UniRemoteExam.Client/UniRemoteExam.Client.csproj -p:TargetFramework=net10.0-android
+
+      - name: Publish signed APK
+        shell: bash
+        run: |
+          dotnet publish Apps/UniRemoteExam.Client/UniRemoteExam.Client.csproj \
+            -f net10.0-android \
+            -c Release \
+            -p:AndroidPackageFormats=apk \
+            -p:AndroidKeyStore=true \
+            -p:AndroidSigningKeyStore="$RUNNER_TEMP/uniremoteexam.keystore" \
+            -p:AndroidSigningKeyAlias="$ANDROID_KEY_ALIAS" \
+            -p:AndroidSigningStorePass="$ANDROID_KEYSTORE_PASSWORD" \
+            -p:AndroidSigningKeyPass="$ANDROID_KEY_PASSWORD"
+          mkdir -p artifacts/android
+          signed_apk="$(find Apps/UniRemoteExam.Client/bin/Release/net10.0-android -type f -name '*-Signed.apk' -print -quit)"
+          test -n "$signed_apk" || { echo "Signed APK was not produced"; exit 1; }
+          cp "$signed_apk" artifacts/android/UniRemoteExam-Android.apk
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: UniRemoteExam-Android-APK
+          path: artifacts/android/UniRemoteExam-Android.apk
+          if-no-files-found: error
+          retention-days: 30

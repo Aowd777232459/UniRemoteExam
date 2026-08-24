@@ -1,0 +1,419 @@
+@model UniRemoteExam.Areas.Admin.ViewModels.ApprovalDetailsVm
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "تفاصيل طلب النشر";
+}
+
+<style>
+    .approval-page {
+        direction: rtl;
+        text-align: right;
+    }
+
+    .approval-hero {
+        background: linear-gradient(135deg, #061b16, #0f5132, #198754);
+        color: white;
+        border-radius: 28px;
+        padding: 28px;
+        margin-bottom: 22px;
+        box-shadow: 0 20px 45px rgba(15,81,50,.22);
+    }
+
+    .approval-grid {
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        gap: 18px;
+        margin-bottom: 22px;
+    }
+
+    .span-4 {
+        grid-column: span 4;
+    }
+
+    .span-6 {
+        grid-column: span 6;
+    }
+
+    .span-8 {
+        grid-column: span 8;
+    }
+
+    .span-12 {
+        grid-column: span 12;
+    }
+
+    .info-card {
+        background: white;
+        border: 1px solid #e5ecef;
+        border-radius: 22px;
+        padding: 18px;
+        box-shadow: 0 14px 30px rgba(16,42,36,.06);
+    }
+
+    .info-label {
+        color: #64748b;
+        font-size: 13px;
+        font-weight: 900;
+        margin-bottom: 8px;
+    }
+
+    .info-value {
+        color: #102a24;
+        font-size: 18px;
+        font-weight: 950;
+        line-height: 1.7;
+    }
+
+    .question-card {
+        background: white;
+        border: 1px solid #e5ecef;
+        border-radius: 22px;
+        padding: 20px;
+        box-shadow: 0 14px 30px rgba(16,42,36,.06);
+        margin-bottom: 18px;
+    }
+
+    .question-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: center;
+        margin-bottom: 14px;
+        flex-wrap: wrap;
+    }
+
+    .question-title {
+        font-weight: 950;
+        color: #102a24;
+        margin: 0;
+    }
+
+    .question-meta {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .badge-soft {
+        border-radius: 50px;
+        padding: 6px 12px;
+        font-size: 12px;
+        font-weight: 950;
+        display: inline-block;
+    }
+
+    .badge-green {
+        background: #e8f7ef;
+        color: #0f5132;
+    }
+
+    .badge-gold {
+        background: #fff4dc;
+        color: #996515;
+    }
+
+    .badge-blue {
+        background: #e8f0ff;
+        color: #175cd3;
+    }
+
+    .field-label {
+        font-weight: 900;
+        margin-bottom: 7px;
+        color: #102a24;
+    }
+
+    .form-control, .form-select {
+        border-radius: 14px;
+        border: 1px solid #dbe3e8;
+    }
+
+    .choice-row {
+        display: grid;
+        grid-template-columns: 70px 1fr 90px;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .actions-bar {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 18px;
+    }
+
+    .btn-admin {
+        border: none;
+        border-radius: 14px;
+        padding: 11px 18px;
+        font-weight: 950;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-main {
+        background: #0f5132;
+        color: white;
+    }
+
+        .btn-main:hover {
+            color: white;
+            background: #0a3b25;
+        }
+
+    .btn-light-admin {
+        background: white;
+        color: #102a24;
+        border: 1px solid #e5ecef;
+    }
+
+        .btn-light-admin:hover {
+            color: #102a24;
+            background: #f8fbfa;
+        }
+
+    .btn-danger-admin {
+        background: #b42318;
+        color: white;
+    }
+
+        .btn-danger-admin:hover {
+            color: white;
+            background: #8f1d14;
+        }
+
+    @@media (max-width: 900px) {
+        .span-4, .span-6, .span-8, .span-12 {
+            grid-column: span 12;
+        }
+
+        .choice-row {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="approval-page">
+
+    <div class="actions-bar">
+        <a href="/Admin/Approvals/Pending" class="btn-admin btn-light-admin">↩ رجوع إلى الطلبات</a>
+        <a href="/Admin/Dashboard" class="btn-admin btn-light-admin">لوحة المدير</a>
+        <a href="/Admin/Reports" class="btn-admin btn-light-admin">التقارير</a>
+    </div>
+
+    <div class="approval-hero">
+        <h2 style="margin:0 0 8px;font-weight:950;">@Model.ExamTitle</h2>
+        <div style="opacity:.92;line-height:1.9;font-weight:800;">
+            عرض محتوى الأسئلة، الوقت، الدرجات، والخيارات مع إمكانية التعديل ثم الحفظ دفعة واحدة.
+        </div>
+    </div>
+
+    <div class="approval-grid">
+        <div class="info-card span-4">
+            <div class="info-label">الدكتور</div>
+            <div class="info-value">@Model.TeacherName</div>
+            <div style="color:#64748b;font-size:13px;margin-top:6px;">@Model.TeacherEmail</div>
+        </div>
+
+        <div class="info-card span-4">
+            <div class="info-label">المقرر</div>
+            <div class="info-value">@Model.CourseName</div>
+        </div>
+
+        <div class="info-card span-4">
+            <div class="info-label">الحالة</div>
+            <div class="info-value">
+                @if (Model.IsPublished)
+                {
+                    <span class="badge-soft badge-green">منشور</span>
+                }
+                else if (Model.Status == "Approved")
+                {
+                    <span class="badge-soft badge-blue">معتمد</span>
+                }
+                else if (Model.Status == "Rejected")
+                {
+                    <span class="badge-soft badge-gold">مرفوض</span>
+                }
+                else
+                {
+                    <span class="badge-soft badge-gold">Pending</span>
+                }
+            </div>
+        </div>
+
+        <div class="info-card span-4">
+            <div class="info-label">عدد الأسئلة</div>
+            <div class="info-value">@Model.QuestionCount</div>
+        </div>
+
+        <div class="info-card span-4">
+            <div class="info-label">إجمالي الدرجات</div>
+            <div class="info-value">@Model.TotalPoints</div>
+        </div>
+
+        <div class="info-card span-4">
+            <div class="info-label">إجمالي الوقت</div>
+            <div class="info-value">@Model.TotalTimeSeconds ثانية</div>
+        </div>
+
+        <div class="info-card span-12">
+            <div class="info-label">ملاحظة/تقييم المدير</div>
+            <div class="info-value">@(string.IsNullOrWhiteSpace(Model.AdminNote) ? "-" : Model.AdminNote)</div>
+        </div>
+    </div>
+
+    <form method="post" action="/Admin/Approvals/SaveAll">
+        @Html.AntiForgeryToken()
+
+        <input type="hidden" name="RequestId" value="@Model.RequestId" />
+        <input type="hidden" name="ExamId" value="@Model.ExamId" />
+        <input type="hidden" name="ExamTitle" value="@Model.ExamTitle" />
+        <input type="hidden" name="CourseName" value="@Model.CourseName" />
+        <input type="hidden" name="TeacherName" value="@Model.TeacherName" />
+        <input type="hidden" name="TeacherEmail" value="@Model.TeacherEmail" />
+        <input type="hidden" name="Status" value="@Model.Status" />
+        <input type="hidden" name="RequestedAt" value="@Model.RequestedAt.ToString("o")" />
+        <input type="hidden" name="IsPublished" value="@Model.IsPublished" />
+        <input type="hidden" name="QuestionCount" value="@Model.QuestionCount" />
+        <input type="hidden" name="TotalPoints" value="@Model.TotalPoints" />
+        <input type="hidden" name="TotalTimeSeconds" value="@Model.TotalTimeSeconds" />
+        <input type="hidden" name="AdminNote" value="@Model.AdminNote" />
+
+        <div class="actions-bar">
+            <button type="submit" class="btn-admin btn-main">💾 حفظ كل التعديلات</button>
+        </div>
+
+        @for (int i = 0; i < Model.Questions.Count; i++)
+        {
+            var q = Model.Questions[i];
+
+            <div class="question-card">
+                <div class="question-head">
+                    <h4 class="question-title">السؤال رقم @q.SortOrder</h4>
+                    <div class="question-meta">
+                        <span class="badge-soft badge-green">@q.QuestionType</span>
+                        <span class="badge-soft badge-blue">الدرجة: @q.Points</span>
+                        <span class="badge-soft badge-gold">الوقت: @(q.TimeLimitSeconds?.ToString() ?? "0") ث</span>
+                    </div>
+                </div>
+
+                <input type="hidden" name="Questions[@i].QuestionId" value="@q.QuestionId" />
+                <input type="hidden" name="Questions[@i].SortOrder" value="@q.SortOrder" />
+                <input type="hidden" name="Questions[@i].QuestionType" value="@q.QuestionType" />
+                <input type="hidden" name="Questions[@i].CorrectChoiceId" value="@q.CorrectChoiceId" />
+                <input type="hidden" name="Questions[@i].CorrectBool" value="@(q.CorrectBool?.ToString() ?? "")" />
+                <input type="hidden" name="Questions[@i].ModelAnswer" value="@q.ModelAnswer" />
+
+                <div class="mb-3">
+                    <div class="field-label">نص السؤال</div>
+                    <textarea class="form-control" rows="3" name="Questions[@i].Body">@q.Body</textarea>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-4">
+                        <div class="field-label">الدرجة</div>
+                        <input class="form-control" type="number" step="0.01" name="Questions[@i].Points" value="@q.Points" />
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="field-label">الوقت بالثواني</div>
+                        <input class="form-control" type="number" name="Questions[@i].TimeLimitSeconds" value="@(q.TimeLimitSeconds ?? 0)" />
+                    </div>
+                </div>
+
+                @if (q.QuestionType == "اختيار متعدد")
+                {
+                    <div class="field-label">الاختيارات</div>
+
+                    @for (int j = 0; j < q.Choices.Count; j++)
+                    {
+                        <div class="choice-row">
+                            <input type="hidden" name="Questions[@i].Choices[@j].ChoiceId" value="@q.Choices[j].ChoiceId" />
+                            <input type="hidden" name="Questions[@i].Choices[@j].SortOrder" value="@q.Choices[j].SortOrder" />
+
+                            <input type="text"
+                                   class="form-control"
+                                   name="Questions[@i].Choices[@j].ChoiceText"
+                                   value="@q.Choices[j].ChoiceText" />
+
+                            <label class="d-flex align-items-center gap-2 m-0">
+                                <input type="checkbox"
+                                       name="Questions[@i].Choices[@j].IsCorrect"
+                                       value="true"
+                                       @(q.Choices[j].IsCorrect ? "checked" : "") />
+                                صحيح
+                            </label>
+                        </div>
+                    }
+
+                    <div class="mt-3">
+                        <div class="field-label">الإجابة الصحيحة المختارة</div>
+                        <select class="form-select" name="Questions[@i].CorrectChoiceId">
+                            <option value="">-- اختر --</option>
+                            @foreach (var c in q.Choices)
+                            {
+                                <option value="@c.ChoiceId" @(q.CorrectChoiceId == c.ChoiceId ? "selected" : "")>
+                                    @c.ChoiceText
+                                </option>
+                            }
+                        </select>
+                    </div>
+                }
+
+                @if (q.QuestionType == "صح وخطأ")
+                {
+                    <div class="mt-3">
+                        <div class="field-label">الإجابة الصحيحة</div>
+                        <select class="form-select" name="Questions[@i].CorrectBool">
+                            <option value="">-- اختر --</option>
+                            <option value="true" @(q.CorrectBool == true ? "selected" : "")>صح</option>
+                            <option value="false" @(q.CorrectBool == false ? "selected" : "")>خطأ</option>
+                        </select>
+                    </div>
+                }
+
+                @if (q.QuestionType == "مقالي")
+                {
+                    <div class="mt-3">
+                        <div class="field-label">الإجابة النموذجية</div>
+                        <textarea class="form-control" rows="3" name="Questions[@i].ModelAnswer">@q.ModelAnswer</textarea>
+                    </div>
+                }
+            </div>
+        }
+
+        <div class="actions-bar">
+            <button type="submit" class="btn-admin btn-main">💾 حفظ كل التعديلات</button>
+            <a href="/Admin/Approvals/Pending" class="btn-admin btn-light-admin">↩ رجوع</a>
+        </div>
+    </form>
+
+    <div class="question-card">
+        <h4 style="margin-bottom:15px;font-weight:950;">قرار المدير</h4>
+
+        <form method="post" action="/Admin/Approvals/Approve" class="mb-3">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="requestId" value="@Model.RequestId" />
+
+            <div class="field-label">ملاحظة للدكتور عند الاعتماد</div>
+            <textarea name="adminNote" class="form-control mb-3" rows="3"></textarea>
+
+            <button type="submit" class="btn-admin btn-main">✅ اعتماد الاختبار</button>
+        </form>
+
+        <form method="post" action="/Admin/Approvals/Reject">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="requestId" value="@Model.RequestId" />
+
+            <div class="field-label">سبب الرفض</div>
+            <textarea name="adminNote" class="form-control mb-3" rows="3"></textarea>
+
+            <button type="submit" class="btn-admin btn-danger-admin">❌ رفض الاختبار</button>
+        </form>
+    </div>
+</div>
