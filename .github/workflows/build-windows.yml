@@ -19,7 +19,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build-windows:
@@ -73,10 +73,41 @@ jobs:
             "/DAppVersion=1.0.2" `
             "Installer/UniRemoteExam.iss"
 
+      - name: Create ZIP fallback
+        shell: powershell
+        run: |
+          Compress-Archive `
+            -Path artifacts/windows/UniRemoteExam-LAN-Windows-Setup.exe `
+            -DestinationPath artifacts/windows/UniRemoteExam-LAN-Windows-Installer.zip `
+            -CompressionLevel Optimal `
+            -Force
+
       - name: Upload Windows installer
         uses: actions/upload-artifact@v4
         with:
           name: UniRemoteExam-LAN-Windows-Installer
-          path: artifacts/windows/UniRemoteExam-LAN-Windows-Setup.exe
+          path: |
+            artifacts/windows/UniRemoteExam-LAN-Windows-Setup.exe
+            artifacts/windows/UniRemoteExam-LAN-Windows-Installer.zip
           if-no-files-found: error
           retention-days: 30
+
+      - name: Publish permanent GitHub download
+        shell: powershell
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $tag = "lan-v1.0.2"
+          gh release view $tag --repo "${{ github.repository }}" 2>$null
+          if ($LASTEXITCODE -ne 0) {
+            gh release create $tag `
+              --repo "${{ github.repository }}" `
+              --target "${{ github.sha }}" `
+              --title "UniRemoteExam LAN v1.0.2" `
+              --notes "نسخة الشبكة المحلية: الكمبيوتر هو الخادم وقاعدة البيانات، والجوال يتصل عبر شبكة Wi-Fi نفسها دون استضافة أو اشتراك."
+          }
+          gh release upload $tag `
+            artifacts/windows/UniRemoteExam-LAN-Windows-Setup.exe `
+            artifacts/windows/UniRemoteExam-LAN-Windows-Installer.zip `
+            --clobber `
+            --repo "${{ github.repository }}"
