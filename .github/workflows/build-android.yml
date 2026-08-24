@@ -1,6 +1,11 @@
 name: Build Android APK
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - "Apps/**"
+      - ".github/workflows/build-android.yml"
   workflow_dispatch:
 
 permissions:
@@ -33,19 +38,26 @@ jobs:
       - name: Install Android workload
         run: dotnet workload install maui-android
 
-      - name: Validate signing secrets
+      - name: Prepare signing
+        id: signing
         shell: bash
         run: |
-          test -n "$ANDROID_KEYSTORE_BASE64" || { echo "Missing ANDROID_KEYSTORE_BASE64"; exit 1; }
-          test -n "$ANDROID_KEY_ALIAS" || { echo "Missing ANDROID_KEY_ALIAS"; exit 1; }
-          test -n "$ANDROID_KEYSTORE_PASSWORD" || { echo "Missing ANDROID_KEYSTORE_PASSWORD"; exit 1; }
-          test -n "$ANDROID_KEY_PASSWORD" || { echo "Missing ANDROID_KEY_PASSWORD"; exit 1; }
-          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/uniremoteexam.keystore"
+          if test -n "$ANDROID_KEYSTORE_BASE64" \
+            && test -n "$ANDROID_KEY_ALIAS" \
+            && test -n "$ANDROID_KEYSTORE_PASSWORD" \
+            && test -n "$ANDROID_KEY_PASSWORD"; then
+            printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/uniremoteexam.keystore"
+            echo "has_release_key=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_release_key=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::Signing secrets are missing; producing an installable debug-signed APK."
+          fi
 
       - name: Restore Android app
         run: dotnet restore Apps/UniRemoteExam.Client/UniRemoteExam.Client.csproj -p:TargetFramework=net10.0-android
 
       - name: Publish signed APK
+        if: steps.signing.outputs.has_release_key == 'true'
         shell: bash
         run: |
           dotnet publish Apps/UniRemoteExam.Client/UniRemoteExam.Client.csproj \
@@ -61,6 +73,19 @@ jobs:
           signed_apk="$(find Apps/UniRemoteExam.Client/bin/Release/net10.0-android -type f -name '*-Signed.apk' -print -quit)"
           test -n "$signed_apk" || { echo "Signed APK was not produced"; exit 1; }
           cp "$signed_apk" artifacts/android/UniRemoteExam-Android.apk
+
+      - name: Publish debug-signed APK
+        if: steps.signing.outputs.has_release_key != 'true'
+        shell: bash
+        run: |
+          dotnet publish Apps/UniRemoteExam.Client/UniRemoteExam.Client.csproj \
+            -f net10.0-android \
+            -c Debug \
+            -p:AndroidPackageFormats=apk
+          mkdir -p artifacts/android
+          debug_apk="$(find Apps/UniRemoteExam.Client/bin/Debug/net10.0-android -type f -name '*-Signed.apk' -print -quit)"
+          test -n "$debug_apk" || { echo "Installable debug APK was not produced"; exit 1; }
+          cp "$debug_apk" artifacts/android/UniRemoteExam-Android.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
