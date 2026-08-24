@@ -33,13 +33,13 @@
 
     @if (TempData["Error"] != null)
     {
-        <div style="background:#fef2f2;border:1px solid #fecaca;color:#991b1b;border-radius:18px;padding:14px 16px;margin-bottom:16px;font-weight:900;line-height:1.8;">
+        <div style="background:#fef2f2;border:1px solid #fecaca;color:#991b1b;border-radius:18px;padding:14px 16px;margin-bottom:16px;font-weight:700;line-height:1.8;">
             @TempData["Error"]
         </div>
     }
     @if (TempData["Success"] != null)
     {
-        <div style="background:#ecfdf5;border:1px solid #bbf7d0;color:#166534;border-radius:18px;padding:14px 16px;margin-bottom:16px;font-weight:900;line-height:1.8;">
+        <div style="background:#ecfdf5;border:1px solid #bbf7d0;color:#166534;border-radius:18px;padding:14px 16px;margin-bottom:16px;font-weight:700;line-height:1.8;">
             @TempData["Success"]
         </div>
     }
@@ -51,7 +51,7 @@
         <div style="position:relative;display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;">
             <div>
                 <div style="font-size:14px;font-weight:700;opacity:.9;margin-bottom:8px;">لوحة الدكتور - إدارة الاختبار</div>
-                <div style="font-size:30px;font-weight:900;line-height:1.4;">
+                <div style="font-size:30px;font-weight:700;line-height:1.4;">
                     @(string.IsNullOrWhiteSpace(Model.Title) ? "اختبار بدون عنوان" : Model.Title)
                 </div>
                 <div style="font-size:15px;opacity:.92;margin-top:8px;">
@@ -60,13 +60,13 @@
                 </div>
 
                 <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;">
-                    <span style="padding:8px 14px;border-radius:999px;font-size:13px;font-weight:900;@(Model.IsPublished ? "background:#dcfce7;color:#166534;" : "background:#fff7ed;color:#b45309;")">
+                    <span style="padding:8px 14px;border-radius:999px;font-size:13px;font-weight:700;@(Model.IsPublished ? "background:#dcfce7;color:#166534;" : "background:#fff7ed;color:#b45309;")">
                         @(Model.IsPublished ? "✅ الاختبار منشور" : "📝 الاختبار مسودة")
                     </span>
 
                     @if (!Model.IsPublished && hasPending)
                     {
-                        <span style="padding:8px 14px;border-radius:999px;font-size:13px;font-weight:900;background:#fef3c7;color:#92400e;">
+                        <span style="padding:8px 14px;border-radius:999px;font-size:13px;font-weight:700;background:#fef3c7;color:#92400e;">
                             ⏳ طلب النشر قيد الانتظار
                         </span>
                     }
@@ -75,7 +75,7 @@
 
             <div style="display:flex;gap:12px;flex-wrap:wrap;">
                 <a href="/Teacher/Exams"
-                   style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center;padding:13px 18px;border-radius:15px;background:rgba(255,255,255,.12);color:#fff;font-weight:900;border:1px solid rgba(255,255,255,.18);min-width:150px;">
+                   style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center;padding:13px 18px;border-radius:15px;background:rgba(255,255,255,.12);color:#fff;font-weight:700;border:1px solid rgba(255,255,255,.18);min-width:150px;">
                     ⬅ رجوع لاختباراتي
                 </a>
             </div>
@@ -85,22 +85,22 @@
     <div class="teacher-exam-stats-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:18px;">
         <div style="background:#fff;border:1px solid #e7edf5;border-radius:20px;padding:18px;box-shadow:0 8px 22px rgba(15,23,42,.05);">
             <div style="color:#6b7280;font-weight:700;">رقم الاختبار</div>
-            <div style="font-size:28px;font-weight:900;color:#0b3a2e;margin-top:8px;">#@Model.ExamId</div>
+            <div style="font-size:28px;font-weight:700;color:#0b3a2e;margin-top:8px;">#@Model.ExamId</div>
         </div>
 
         <div style="background:#fff;border:1px solid #e7edf5;border-radius:20px;padding:18px;box-shadow:0 8px 22px rgba(15,23,42,.05);">
             <div style="color:#6b7280;font-weight:700;">عدد الأسئلة</div>
-            <div style="font-size:28px;font-weight:900;color:#0b3a2e;margin-top:8px;">@totalQuestions</div>
+            <div style="font-size:28px;font-weight:700;color:#0b3a2e;margin-top:8px;">@totalQuestions</div>
         </div>
 
         <div style="background:#fff;border:1px solid #e7edf5;border-radius:20px;padding:18px;box-shadow:0 8px 22px rgba(15,23,42,.05);">
             <div style="color:#6b7280;font-weight:700;">مجموع الدرجات</div>
-            <div style="font-size:28px;font-weight:900;color:#0f8b6d;margin-top:8px;">@totalPoints</div>
+            <div style="font-size:28px;font-weight:700;color:#0f8b6d;margin-top:8px;">@totalPoints</div>
         </div>
 
         <div style="background:#fff;border:1px solid #e7edf5;border-radius:20px;padding:18px;box-shadow:0 8px 22px rgba(15,23,42,.05);">
             <div style="color:#6b7280;font-weight:700;">الحالة</div>
-            <div style="font-size:24px;font-weight:900;color:@(Model.IsPublished ? "#0f8b6d" : "#c28a15");margin-top:8px;">
+            <div style="font-size:24px;font-weight:700;color:@(Model.IsPublished ? "#0f8b6d" : "#c28a15");margin-top:8px;">
                 @(Model.IsPublished ? "منشور" : "مسودة")
             </div>
         </div>
@@ -122,7 +122,7 @@
                     <div>
                         <div style="background:#fff;border:1px solid #e7edf5;border-radius:22px;overflow:hidden;box-shadow:0 8px 22px rgba(15,23,42,.04);">
                             <div style="padding:18px 20px;border-bottom:1px solid #edf1f7;">
-                                <div style="font-size:22px;font-weight:900;color:#0b3a2e;">📚 أسئلة الاختبار</div>
+                                <div style="font-size:22px;font-weight:700;color:#0b3a2e;">📚 أسئلة الاختبار</div>
                                 <div style="color:#6b7280;margin-top:6px;">جميع الأسئلة المضافة مرتبة حسب الترتيب المعتمد.</div>
                             </div>
 
@@ -131,7 +131,7 @@
                                 {
                                     <div style="background:#f8fafc;border:1px dashed #cfd8e3;border-radius:18px;padding:26px;text-align:center;">
                                         <div style="font-size:46px;">📝</div>
-                                        <div style="font-size:22px;font-weight:900;color:#0b3a2e;margin-top:10px;">لا توجد أسئلة بعد</div>
+                                        <div style="font-size:22px;font-weight:700;color:#0b3a2e;margin-top:10px;">لا توجد أسئلة بعد</div>
                                         <div style="color:#6b7280;margin-top:8px;">ابدأ بإضافة أسئلة من النماذج الموجودة في الجهة الأخرى.</div>
                                     </div>
                                 }
@@ -145,8 +145,8 @@
                                             <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;">
                                                 <div style="flex:1;">
                                                     <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-                                                        <span style="font-size:18px;font-weight:900;color:#0b3a2e;">سؤال @q.SortOrder</span>
-                                                        <span style="padding:6px 10px;border-radius:999px;font-size:12px;font-weight:900;@TypeBadgeStyle(q.QuestionType)">
+                                                        <span style="font-size:18px;font-weight:700;color:#0b3a2e;">سؤال @q.SortOrder</span>
+                                                        <span style="padding:6px 10px;border-radius:999px;font-size:12px;font-weight:700;@TypeBadgeStyle(q.QuestionType)">
                                                             @TypeLabel(q.QuestionType)
                                                         </span>
                                                     </div>
@@ -157,13 +157,13 @@
                                                 </div>
 
                                                 <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                                                    <span style="background:#f8fafc;border:1px solid #eef2f7;padding:7px 10px;border-radius:12px;color:#0b3a2e;font-weight:800;">
+                                                    <span style="background:#f8fafc;border:1px solid #eef2f7;padding:7px 10px;border-radius:12px;color:#0b3a2e;font-weight:600;">
                                                         الدرجة: @q.Points
                                                     </span>
 
                                                     @if (q.TimeLimitSeconds.HasValue)
                                                     {
-                                                        <span style="background:#f8fafc;border:1px solid #eef2f7;padding:7px 10px;border-radius:12px;color:#6b7280;font-weight:800;">
+                                                        <span style="background:#f8fafc;border:1px solid #eef2f7;padding:7px 10px;border-radius:12px;color:#6b7280;font-weight:600;">
                                                             وقت السؤال: @QuestionTimeLabel(q.TimeLimitSeconds)
                                                         </span>
                                                     }
@@ -173,7 +173,7 @@
                                             @if (q.QuestionType == "MCQ" && qChoices.Any())
                                             {
                                                 <div style="margin-top:14px;padding-top:12px;border-top:1px dashed #e5e7eb;">
-                                                    <div style="font-size:14px;font-weight:900;color:#6b7280;margin-bottom:8px;">الخيارات:</div>
+                                                    <div style="font-size:14px;font-weight:700;color:#6b7280;margin-bottom:8px;">الخيارات:</div>
                                                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;" class="mcq-choices-grid">
                                                         @foreach (var ch in qChoices)
                                                         {
@@ -188,20 +188,20 @@
                                             @if (!Model.IsPublished && !hasPending)
                                             {
                                                 <details style="margin-top:14px;border-top:1px dashed #e5e7eb;padding-top:12px;">
-                                                    <summary style="cursor:pointer;font-weight:900;color:#0b3a2e;">⚙ تعديل / حذف / ترتيب السؤال</summary>
+                                                    <summary style="cursor:pointer;font-weight:700;color:#0b3a2e;">⚙ تعديل / حذف / ترتيب السؤال</summary>
                                                     <form method="post" action="/Teacher/Exams/UpdateQuestion" style="margin-top:12px;background:#f8fafc;border:1px solid #eef2f7;border-radius:16px;padding:14px;">
                                                         @Html.AntiForgeryToken()
                                                         <input type="hidden" name="examId" value="@Model.ExamId" />
                                                         <input type="hidden" name="questionId" value="@q.QuestionId" />
-                                                        <label style="font-weight:900;color:#0b3a2e;display:block;margin-bottom:6px;">نص السؤال</label>
+                                                        <label style="font-weight:700;color:#0b3a2e;display:block;margin-bottom:6px;">نص السؤال</label>
                                                         <textarea name="body" rows="3" required style="width:100%;border:1px solid #d8e2ee;border-radius:14px;padding:10px 12px;line-height:1.8;">@q.Body</textarea>
                                                         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;" class="question-form-grid">
                                                             <div>
-                                                                <label style="display:block;margin-bottom:6px;font-weight:800;color:#6b7280;">الدرجة</label>
+                                                                <label style="display:block;margin-bottom:6px;font-weight:600;color:#6b7280;">الدرجة</label>
                                                                 <input name="points" type="number" step="0.5" value="@q.Points" style="width:100%;height:44px;border:1px solid #d8e2ee;border-radius:12px;padding:8px 10px;" />
                                                             </div>
                                                             <div>
-                                                                <label style="display:block;margin-bottom:6px;font-weight:800;color:#6b7280;">وقت السؤال بالدقائق</label>
+                                                                <label style="display:block;margin-bottom:6px;font-weight:600;color:#6b7280;">وقت السؤال بالدقائق</label>
                                                                 <input name="timeLimitMinutes" type="number" min="1" value="@(q.TimeLimitSeconds.HasValue ? (int)Math.Ceiling(q.TimeLimitSeconds.Value / 60.0) : null)" style="width:100%;height:44px;border:1px solid #d8e2ee;border-radius:12px;padding:8px 10px;" />
                                                             </div>
                                                         </div>
@@ -214,7 +214,7 @@
                                                                 <input name="c4" value="@(qChoices.ElementAtOrDefault(3)?.ChoiceText ?? "")" placeholder="الخيار الرابع" style="height:42px;border:1px solid #d8e2ee;border-radius:12px;padding:8px 10px;" />
                                                             </div>
                                                         }
-                                                        <button type="submit" style="margin-top:10px;border:0;border-radius:12px;background:#0b3a2e;color:#fff;font-weight:900;padding:10px 14px;cursor:pointer;">💾 حفظ التعديل</button>
+                                                        <button type="submit" style="margin-top:10px;border:0;border-radius:12px;background:#0b3a2e;color:#fff;font-weight:700;padding:10px 14px;cursor:pointer;">💾 حفظ التعديل</button>
                                                     </form>
 
                                                     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">
@@ -223,20 +223,20 @@
                                                             <input type="hidden" name="examId" value="@Model.ExamId" />
                                                             <input type="hidden" name="questionId" value="@q.QuestionId" />
                                                             <input type="hidden" name="direction" value="up" />
-                                                            <button type="submit" style="border:1px solid #d8e2ee;background:#fff;border-radius:12px;padding:9px 12px;font-weight:900;color:#0b3a2e;cursor:pointer;">⬆ رفع</button>
+                                                            <button type="submit" style="border:1px solid #d8e2ee;background:#fff;border-radius:12px;padding:9px 12px;font-weight:700;color:#0b3a2e;cursor:pointer;">⬆ رفع</button>
                                                         </form>
                                                         <form method="post" action="/Teacher/Exams/MoveQuestion">
                                                             @Html.AntiForgeryToken()
                                                             <input type="hidden" name="examId" value="@Model.ExamId" />
                                                             <input type="hidden" name="questionId" value="@q.QuestionId" />
                                                             <input type="hidden" name="direction" value="down" />
-                                                            <button type="submit" style="border:1px solid #d8e2ee;background:#fff;border-radius:12px;padding:9px 12px;font-weight:900;color:#0b3a2e;cursor:pointer;">⬇ تنزيل</button>
+                                                            <button type="submit" style="border:1px solid #d8e2ee;background:#fff;border-radius:12px;padding:9px 12px;font-weight:700;color:#0b3a2e;cursor:pointer;">⬇ تنزيل</button>
                                                         </form>
                                                         <form method="post" action="/Teacher/Exams/DeleteQuestion" onsubmit="return confirm('هل تريد حذف هذا السؤال نهائيًا؟');">
                                                             @Html.AntiForgeryToken()
                                                             <input type="hidden" name="examId" value="@Model.ExamId" />
                                                             <input type="hidden" name="questionId" value="@q.QuestionId" />
-                                                            <button type="submit" style="border:1px solid #fecaca;background:#fef2f2;border-radius:12px;padding:9px 12px;font-weight:900;color:#991b1b;cursor:pointer;">🗑 حذف</button>
+                                                            <button type="submit" style="border:1px solid #fecaca;background:#fef2f2;border-radius:12px;padding:9px 12px;font-weight:700;color:#991b1b;cursor:pointer;">🗑 حذف</button>
                                                         </form>
                                                     </div>
                                                 </details>
@@ -251,7 +251,7 @@
                     <div>
                         <div style="background:#fff;border:1px solid #e7edf5;border-radius:22px;overflow:hidden;box-shadow:0 8px 22px rgba(15,23,42,.04);margin-bottom:16px;">
                             <div style="padding:16px 18px;border-bottom:1px solid #edf1f7;">
-                                <div style="font-size:20px;font-weight:900;color:#0b3a2e;">➕ إضافة سؤال صح / خطأ</div>
+                                <div style="font-size:20px;font-weight:700;color:#0b3a2e;">➕ إضافة سؤال صح / خطأ</div>
                             </div>
 
                             <div style="padding:18px;">
@@ -259,22 +259,22 @@
                                     @Html.AntiForgeryToken()
                                     <input type="hidden" name="examId" value="@Model.ExamId" />
 
-                                    <label style="display:block;margin-bottom:8px;font-weight:900;color:#0b3a2e;">نص السؤال</label>
+                                    <label style="display:block;margin-bottom:8px;font-weight:700;color:#0b3a2e;">نص السؤال</label>
                                     <textarea name="body" rows="3" required style="width:100%;border:1px solid #d8e2ee;border-radius:16px;padding:12px 14px;outline:none;"></textarea>
 
                                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;" class="question-form-grid">
                                         <div>
-                                            <label style="display:block;margin-bottom:8px;font-weight:800;color:#6b7280;">الدرجة</label>
+                                            <label style="display:block;margin-bottom:8px;font-weight:600;color:#6b7280;">الدرجة</label>
                                             <input name="points" type="number" step="0.5" value="1" style="width:100%;height:48px;border:1px solid #d8e2ee;border-radius:14px;padding:10px 12px;" />
                                         </div>
                                         <div>
-                                            <label style="display:block;margin-bottom:8px;font-weight:800;color:#6b7280;">وقت السؤال كاملًا بالدقائق</label>
+                                            <label style="display:block;margin-bottom:8px;font-weight:600;color:#6b7280;">وقت السؤال كاملًا بالدقائق</label>
                                             <input name="timeLimitMinutes" type="number" min="1" placeholder="مثال: 5" style="width:100%;height:48px;border:1px solid #d8e2ee;border-radius:14px;padding:10px 12px;" />
                                             <div style="margin-top:6px;color:#6b7280;font-size:12px;font-weight:700;">هذه المدة للسؤال كاملًا، وليست لكل خيار أو فقرة.</div>
                                         </div>
                                     </div>
 
-                                    <button type="submit" style="margin-top:14px;width:100%;border:0;padding:13px 16px;border-radius:15px;background:linear-gradient(90deg,#0b3a2e,#0f5a47);color:#fff;font-weight:900;cursor:pointer;">
+                                    <button type="submit" style="margin-top:14px;width:100%;border:0;padding:13px 16px;border-radius:15px;background:linear-gradient(90deg,#0b3a2e,#0f5a47);color:#fff;font-weight:700;cursor:pointer;">
                                         + إضافة سؤال صح / خطأ
                                     </button>
                                 </form>
@@ -283,7 +283,7 @@
 
                         <div style="background:#fff;border:1px solid #e7edf5;border-radius:22px;overflow:hidden;box-shadow:0 8px 22px rgba(15,23,42,.04);margin-bottom:16px;">
                             <div style="padding:16px 18px;border-bottom:1px solid #edf1f7;">
-                                <div style="font-size:20px;font-weight:900;color:#0b3a2e;">➕ إضافة سؤال اختيار متعدد</div>
+                                <div style="font-size:20px;font-weight:700;color:#0b3a2e;">➕ إضافة سؤال اختيار متعدد</div>
                             </div>
 
                             <div style="padding:18px;">
@@ -291,30 +291,30 @@
                                     @Html.AntiForgeryToken()
                                     <input type="hidden" name="examId" value="@Model.ExamId" />
 
-                                    <label style="display:block;margin-bottom:8px;font-weight:900;color:#0b3a2e;">نص السؤال</label>
+                                    <label style="display:block;margin-bottom:8px;font-weight:700;color:#0b3a2e;">نص السؤال</label>
                                     <textarea name="body" rows="3" required style="width:100%;border:1px solid #d8e2ee;border-radius:16px;padding:12px 14px;outline:none;"></textarea>
 
                                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;" class="question-form-grid">
                                         <div>
-                                            <label style="display:block;margin-bottom:8px;font-weight:800;color:#6b7280;">الدرجة</label>
+                                            <label style="display:block;margin-bottom:8px;font-weight:600;color:#6b7280;">الدرجة</label>
                                             <input name="points" type="number" step="0.5" value="1" style="width:100%;height:48px;border:1px solid #d8e2ee;border-radius:14px;padding:10px 12px;" />
                                         </div>
                                         <div>
-                                            <label style="display:block;margin-bottom:8px;font-weight:800;color:#6b7280;">وقت السؤال كاملًا بالدقائق</label>
+                                            <label style="display:block;margin-bottom:8px;font-weight:600;color:#6b7280;">وقت السؤال كاملًا بالدقائق</label>
                                             <input name="timeLimitMinutes" type="number" min="1" placeholder="مثال: 5" style="width:100%;height:48px;border:1px solid #d8e2ee;border-radius:14px;padding:10px 12px;" />
                                             <div style="margin-top:6px;color:#6b7280;font-size:12px;font-weight:700;">هذه المدة للسؤال كاملًا، وليست لكل خيار أو فقرة.</div>
                                         </div>
                                     </div>
 
                                     <div style="margin-top:12px;">
-                                        <label style="display:block;margin-bottom:8px;font-weight:900;color:#0b3a2e;">الخيارات الأربعة</label>
+                                        <label style="display:block;margin-bottom:8px;font-weight:700;color:#0b3a2e;">الخيارات الأربعة</label>
                                         <input name="c1" required placeholder="الخيار الأول" style="width:100%;height:46px;border:1px solid #d8e2ee;border-radius:14px;padding:10px 12px;margin-bottom:10px;" />
                                         <input name="c2" required placeholder="الخيار الثاني" style="width:100%;height:46px;border:1px solid #d8e2ee;border-radius:14px;padding:10px 12px;margin-bottom:10px;" />
                                         <input name="c3" required placeholder="الخيار الثالث" style="width:100%;height:46px;border:1px solid #d8e2ee;border-radius:14px;padding:10px 12px;margin-bottom:10px;" />
                                         <input name="c4" required placeholder="الخيار الرابع" style="width:100%;height:46px;border:1px solid #d8e2ee;border-radius:14px;padding:10px 12px;" />
                                     </div>
 
-                                    <button type="submit" style="margin-top:14px;width:100%;border:0;padding:13px 16px;border-radius:15px;background:linear-gradient(90deg,#0b3a2e,#0f5a47);color:#fff;font-weight:900;cursor:pointer;">
+                                    <button type="submit" style="margin-top:14px;width:100%;border:0;padding:13px 16px;border-radius:15px;background:linear-gradient(90deg,#0b3a2e,#0f5a47);color:#fff;font-weight:700;cursor:pointer;">
                                         + إضافة سؤال اختيار متعدد
                                     </button>
                                 </form>
@@ -323,7 +323,7 @@
 
                         <div style="background:#fff;border:1px solid #e7edf5;border-radius:22px;overflow:hidden;box-shadow:0 8px 22px rgba(15,23,42,.04);">
                             <div style="padding:16px 18px;border-bottom:1px solid #edf1f7;">
-                                <div style="font-size:20px;font-weight:900;color:#0b3a2e;">➕ إضافة سؤال مقالي</div>
+                                <div style="font-size:20px;font-weight:700;color:#0b3a2e;">➕ إضافة سؤال مقالي</div>
                             </div>
 
                             <div style="padding:18px;">
@@ -331,22 +331,22 @@
                                     @Html.AntiForgeryToken()
                                     <input type="hidden" name="examId" value="@Model.ExamId" />
 
-                                    <label style="display:block;margin-bottom:8px;font-weight:900;color:#0b3a2e;">نص السؤال</label>
+                                    <label style="display:block;margin-bottom:8px;font-weight:700;color:#0b3a2e;">نص السؤال</label>
                                     <textarea name="body" rows="3" required style="width:100%;border:1px solid #d8e2ee;border-radius:16px;padding:12px 14px;outline:none;"></textarea>
 
                                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;" class="question-form-grid">
                                         <div>
-                                            <label style="display:block;margin-bottom:8px;font-weight:800;color:#6b7280;">الدرجة</label>
+                                            <label style="display:block;margin-bottom:8px;font-weight:600;color:#6b7280;">الدرجة</label>
                                             <input name="points" type="number" step="0.5" value="1" style="width:100%;height:48px;border:1px solid #d8e2ee;border-radius:14px;padding:10px 12px;" />
                                         </div>
                                         <div>
-                                            <label style="display:block;margin-bottom:8px;font-weight:800;color:#6b7280;">وقت السؤال كاملًا بالدقائق</label>
+                                            <label style="display:block;margin-bottom:8px;font-weight:600;color:#6b7280;">وقت السؤال كاملًا بالدقائق</label>
                                             <input name="timeLimitMinutes" type="number" min="1" placeholder="مثال: 10" style="width:100%;height:48px;border:1px solid #d8e2ee;border-radius:14px;padding:10px 12px;" />
                                             <div style="margin-top:6px;color:#6b7280;font-size:12px;font-weight:700;">هذه المدة للسؤال كاملًا، وليست لكل خيار أو فقرة.</div>
                                         </div>
                                     </div>
 
-                                    <button type="submit" style="margin-top:14px;width:100%;border:0;padding:13px 16px;border-radius:15px;background:linear-gradient(90deg,#0b3a2e,#0f5a47);color:#fff;font-weight:900;cursor:pointer;">
+                                    <button type="submit" style="margin-top:14px;width:100%;border:0;padding:13px 16px;border-radius:15px;background:linear-gradient(90deg,#0b3a2e,#0f5a47);color:#fff;font-weight:700;cursor:pointer;">
                                         + إضافة سؤال مقالي
                                     </button>
                                 </form>
@@ -361,7 +361,7 @@
             <div id="tabSettings" class="teacher-tab-pane" style="display:none;">
                 <div style="background:#fff;border:1px solid #e7edf5;border-radius:22px;overflow:hidden;box-shadow:0 8px 22px rgba(15,23,42,.04);">
                     <div style="padding:18px 20px;border-bottom:1px solid #edf1f7;">
-                        <div style="font-size:22px;font-weight:900;color:#0b3a2e;">⚙️ إعدادات الاختبار المتقدمة</div>
+                        <div style="font-size:22px;font-weight:700;color:#0b3a2e;">⚙️ إعدادات الاختبار المتقدمة</div>
                         <div style="color:#6b7280;margin-top:6px;line-height:1.8;">حدد نافذة إتاحة الاختبار، عدد المحاولات، وعشوائية الأسئلة والخيارات لتقليل الغش.</div>
                     </div>
                     <form method="post" action="/Teacher/Exams/UpdateExamSettings" style="padding:18px;">
@@ -369,37 +369,37 @@
                         <input type="hidden" name="examId" value="@Model.ExamId" />
                         <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;" class="question-form-grid">
                             <div style="grid-column:span 2;">
-                                <label style="display:block;margin-bottom:8px;font-weight:900;color:#0b3a2e;">عنوان الاختبار</label>
+                                <label style="display:block;margin-bottom:8px;font-weight:700;color:#0b3a2e;">عنوان الاختبار</label>
                                 <input name="title" value="@Model.Title" required style="width:100%;height:48px;border:1px solid #d8e2ee;border-radius:14px;padding:10px 12px;" />
                             </div>
                             <div style="grid-column:span 2;">
-                                <label style="display:block;margin-bottom:8px;font-weight:900;color:#0b3a2e;">المقرر</label>
+                                <label style="display:block;margin-bottom:8px;font-weight:700;color:#0b3a2e;">المقرر</label>
                                 <select name="courseId" required style="width:100%;height:48px;border:1px solid #d8e2ee;border-radius:14px;padding:10px 12px;">
                                     @foreach (var c in courses) { <option value="@c.CourseId" selected="@(c.CourseId == Model.CourseId)">@c.Code - @c.Name</option> }
                                 </select>
                             </div>
                             <div>
-                                <label style="display:block;margin-bottom:8px;font-weight:900;color:#0b3a2e;">بداية الإتاحة</label>
+                                <label style="display:block;margin-bottom:8px;font-weight:700;color:#0b3a2e;">بداية الإتاحة</label>
                                 <input name="availableFrom" type="datetime-local" value='@(availableFromLocal?.ToString("yyyy-MM-ddTHH:mm"))' style="width:100%;height:48px;border:1px solid #d8e2ee;border-radius:14px;padding:10px 12px;" />
                             </div>
                             <div>
-                                <label style="display:block;margin-bottom:8px;font-weight:900;color:#0b3a2e;">نهاية الإتاحة</label>
+                                <label style="display:block;margin-bottom:8px;font-weight:700;color:#0b3a2e;">نهاية الإتاحة</label>
                                 <input name="availableTo" type="datetime-local" value='@(availableToLocal?.ToString("yyyy-MM-ddTHH:mm"))' style="width:100%;height:48px;border:1px solid #d8e2ee;border-radius:14px;padding:10px 12px;" />
                             </div>
                             <div>
-                                <label style="display:block;margin-bottom:8px;font-weight:900;color:#0b3a2e;">عدد المحاولات</label>
+                                <label style="display:block;margin-bottom:8px;font-weight:700;color:#0b3a2e;">عدد المحاولات</label>
                                 <input name="maxAttempts" type="number" min="1" value="@(Model.MaxAttempts <= 0 ? 1 : Model.MaxAttempts)" style="width:100%;height:48px;border:1px solid #d8e2ee;border-radius:14px;padding:10px 12px;" />
                             </div>
-                            <div><label style="display:block;margin-bottom:8px;font-weight:900;color:#0b3a2e;">المدة الكلية بالدقائق</label><input name="durationMinutes" type="number" min="5" max="600" value="@Model.DurationMinutes" style="width:100%;height:48px;border:1px solid #d8e2ee;border-radius:14px;padding:10px 12px;" /></div>
-                            <div><label style="display:block;margin-bottom:8px;font-weight:900;color:#0b3a2e;">نسبة النجاح %</label><input name="passPercentage" type="number" min="0" max="100" step="0.01" value="@Model.PassPercentage" style="width:100%;height:48px;border:1px solid #d8e2ee;border-radius:14px;padding:10px 12px;" /></div>
+                            <div><label style="display:block;margin-bottom:8px;font-weight:700;color:#0b3a2e;">المدة الكلية بالدقائق</label><input name="durationMinutes" type="number" min="5" max="600" value="@Model.DurationMinutes" style="width:100%;height:48px;border:1px solid #d8e2ee;border-radius:14px;padding:10px 12px;" /></div>
+                            <div><label style="display:block;margin-bottom:8px;font-weight:700;color:#0b3a2e;">نسبة النجاح %</label><input name="passPercentage" type="number" min="0" max="100" step="0.01" value="@Model.PassPercentage" style="width:100%;height:48px;border:1px solid #d8e2ee;border-radius:14px;padding:10px 12px;" /></div>
                             <div style="background:#f8fafc;border:1px solid #e7edf5;border-radius:16px;padding:12px 14px;display:grid;gap:8px;">
-                                <label style="font-weight:900;color:#0b3a2e;"><input name="shuffleQuestions" type="checkbox" value="true" @(Model.ShuffleQuestions ? "checked" : "") /> عشوائية ترتيب الأسئلة</label>
-                                <label style="font-weight:900;color:#0b3a2e;"><input name="shuffleChoices" type="checkbox" value="true" @(Model.ShuffleChoices ? "checked" : "") /> عشوائية الخيارات</label>
-                                <label style="font-weight:900;color:#0b3a2e;"><input name="showCorrectAnswers" type="checkbox" value="true" @(Model.ShowCorrectAnswers ? "checked" : "") /> إظهار الإجابات الصحيحة بعد اعتماد النتيجة</label>
-                                <input name="autoSubmitOnExpiry" type="hidden" value="true" /><div style="font-weight:900;color:#198754;">✓ التسليم التلقائي عند انتهاء المدة مفعل إلزاميًا.</div>
+                                <label style="font-weight:700;color:#0b3a2e;"><input name="shuffleQuestions" type="checkbox" value="true" @(Model.ShuffleQuestions ? "checked" : "") /> عشوائية ترتيب الأسئلة</label>
+                                <label style="font-weight:700;color:#0b3a2e;"><input name="shuffleChoices" type="checkbox" value="true" @(Model.ShuffleChoices ? "checked" : "") /> عشوائية الخيارات</label>
+                                <label style="font-weight:700;color:#0b3a2e;"><input name="showCorrectAnswers" type="checkbox" value="true" @(Model.ShowCorrectAnswers ? "checked" : "") /> إظهار الإجابات الصحيحة بعد اعتماد النتيجة</label>
+                                <input name="autoSubmitOnExpiry" type="hidden" value="true" /><div style="font-weight:700;color:#198754;">✓ التسليم التلقائي عند انتهاء المدة مفعل إلزاميًا.</div>
                             </div>
                         </div>
-                        <button type="submit" style="margin-top:16px;width:100%;border:0;padding:14px 16px;border-radius:16px;background:linear-gradient(90deg,#0b3a2e,#0f5a47);color:#fff;font-weight:900;cursor:pointer;">💾 حفظ الإعدادات</button>
+                        <button type="submit" style="margin-top:16px;width:100%;border:0;padding:14px 16px;border-radius:16px;background:linear-gradient(90deg,#0b3a2e,#0f5a47);color:#fff;font-weight:700;cursor:pointer;">💾 حفظ الإعدادات</button>
                     </form>
                 </div>
             </div>
@@ -407,27 +407,27 @@
             <div id="tabPublish" class="teacher-tab-pane" style="display:none;">
                 <div style="background:#fff;border:1px solid #e7edf5;border-radius:22px;overflow:hidden;box-shadow:0 8px 22px rgba(15,23,42,.04);">
                     <div style="padding:18px 20px;border-bottom:1px solid #edf1f7;">
-                        <div style="font-size:22px;font-weight:900;color:#0b3a2e;">📢 نشر الاختبار</div>
+                        <div style="font-size:22px;font-weight:700;color:#0b3a2e;">📢 نشر الاختبار</div>
                         <div style="color:#6b7280;margin-top:6px;">بعد الانتهاء من إعداد الأسئلة، انتقل إلى صفحة نموذج الإجابة ثم أرسل طلب النشر.</div>
                     </div>
 
                     <div style="padding:18px;">
                         @if (Model.IsPublished)
                         {
-                            <div style="background:#ecfdf5;border:1px solid #bbf7d0;color:#166534;border-radius:16px;padding:16px;font-weight:900;">
+                            <div style="background:#ecfdf5;border:1px solid #bbf7d0;color:#166534;border-radius:16px;padding:16px;font-weight:700;">
                                 تم نشر الاختبار بنجاح ✅
                             </div>
                         }
                         else if (hasPending)
                         {
-                            <div style="background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;border-radius:16px;padding:16px;font-weight:900;">
+                            <div style="background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;border-radius:16px;padding:16px;font-weight:700;">
                                 تم إرسال طلب النشر، وهو الآن قيد المراجعة.
                             </div>
                         }
                         else
                         {
                             <div style="background:#f8fafc;border:1px solid #eef2f7;border-radius:18px;padding:18px;">
-                                <div style="font-weight:900;color:#0b3a2e;font-size:18px;">جاهز لإرسال طلب النشر</div>
+                                <div style="font-weight:700;color:#0b3a2e;font-size:18px;">جاهز لإرسال طلب النشر</div>
                                 <div style="color:#6b7280;margin-top:8px;line-height:1.9;">
                                     تأكد من اكتمال الأسئلة ثم افتح صفحة نموذج الإجابة لإدخال جميع الإجابات قبل إرسال الطلب.
                                 </div>
@@ -435,7 +435,7 @@
                                 <form method="post" action="/Teacher/Exams/RequestPublish" style="margin-top:16px;">
                                     @Html.AntiForgeryToken()
                                     <input type="hidden" name="examId" value="@Model.ExamId" />
-                                    <button type="submit" style="width:100%;border:0;padding:14px 16px;border-radius:16px;background:linear-gradient(90deg,#d4af37,#f4d77c);color:#0b3a2e;font-weight:900;box-shadow:0 10px 24px rgba(212,175,55,.32);cursor:pointer;">
+                                    <button type="submit" style="width:100%;border:0;padding:14px 16px;border-radius:16px;background:linear-gradient(90deg,#d4af37,#f4d77c);color:#0b3a2e;font-weight:700;box-shadow:0 10px 24px rgba(212,175,55,.32);cursor:pointer;">
                                         🚀 إرسال طلب نشر
                                     </button>
                                 </form>
@@ -454,7 +454,7 @@
         border: 0;
         background: #f8fafc;
         color: #0b3a2e;
-        font-weight: 900;
+        font-weight: 700;
         padding: 12px 18px;
         border-radius: 14px;
         cursor: pointer;
@@ -490,7 +490,7 @@
     color:#0b3a2e;
     padding:11px 16px;
     border-radius:14px;
-    font-weight:900;
+    font-weight:700;
     cursor:pointer;
     display:inline-flex;
     align-items:center;

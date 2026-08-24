@@ -6,15 +6,15 @@
     <div style="background:#fff;border:1px solid #e7edf5;border-radius:22px;box-shadow:0 12px 28px rgba(15,23,42,.06);overflow:hidden;">
         <div style="padding:18px 20px;border-bottom:1px solid #edf1f7;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center;">
             <div>
-                <div style="font-size:24px;font-weight:900;color:#0b3a2e;">🛡️ سجل مراقبة محاولة الطالب</div>
+                <div style="font-size:24px;font-weight:700;color:#0b3a2e;">🛡️ سجل مراقبة محاولة الطالب</div>
                 <div style="color:#6b7280;margin-top:6px;">يعرض أحداث الخروج من الصفحة، فقدان التركيز، النسخ واللصق أثناء الاختبار.</div>
             </div>
-            <a href="javascript:history.back()" style="text-decoration:none;padding:11px 16px;border-radius:14px;border:1px solid #d8e2ee;color:#0b3a2e;font-weight:900;">رجوع</a>
+            <a href="javascript:history.back()" style="text-decoration:none;padding:11px 16px;border-radius:14px;border:1px solid #d8e2ee;color:#0b3a2e;font-weight:700;">رجوع</a>
         </div>
         <div style="padding:18px;overflow:auto;">
             @if (!Model.Any())
             {
-                <div style="background:#f8fafc;border:1px solid #e7edf5;border-radius:16px;padding:18px;color:#6b7280;font-weight:800;">لا توجد أحداث مراقبة مسجلة لهذه المحاولة.</div>
+                <div style="background:#f8fafc;border:1px solid #e7edf5;border-radius:16px;padding:18px;color:#6b7280;font-weight:600;">لا توجد أحداث مراقبة مسجلة لهذه المحاولة.</div>
             }
             else
             {
@@ -32,7 +32,7 @@
                     @foreach (var e in Model)
                     {
                         <tr>
-                            <td style="padding:12px;border-bottom:1px solid #eef2f7;font-weight:800;">@e.Student?.FullName</td>
+                            <td style="padding:12px;border-bottom:1px solid #eef2f7;font-weight:600;">@e.Student?.FullName</td>
                             <td style="padding:12px;border-bottom:1px solid #eef2f7;">@e.EventType</td>
                             <td style="padding:12px;border-bottom:1px solid #eef2f7;">@(e.Question?.SortOrder.ToString() ?? "-")</td>
                             <td style="padding:12px;border-bottom:1px solid #eef2f7;">@e.Details</td>

@@ -4,6 +4,10 @@ $installRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $serverExe = Join-Path $installRoot 'Server\UniRemoteExam.exe'
 $clientExe = Join-Path $installRoot 'Client\UniRemoteExam.Client.exe'
 $healthUrl = 'http://127.0.0.1:5113/health'
+$webViewUserData = Join-Path $env:LOCALAPPDATA 'UniRemoteExam\WebView2'
+
+New-Item -ItemType Directory -Force -Path $webViewUserData | Out-Null
+$env:WEBVIEW2_USER_DATA_FOLDER = $webViewUserData
 
 function Test-UniRemoteServer {
     try {

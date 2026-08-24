@@ -70,7 +70,7 @@ jobs:
             "/DClientPublishDir=$((Resolve-Path 'artifacts/windows-client-publish').Path)" `
             "/DServerPublishDir=$((Resolve-Path 'artifacts/windows-server-publish').Path)" `
             "/DOutputDir=$((Resolve-Path 'artifacts/windows').Path)" `
-            "/DAppVersion=1.0.2" `
+            "/DAppVersion=1.0.3" `
             "Installer/UniRemoteExam.iss"
 
       - name: Create ZIP fallback
@@ -97,14 +97,14 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          $tag = "lan-v1.0.2"
+          $tag = "lan-v1.0.3"
           gh release view $tag --repo "${{ github.repository }}" 2>$null
           if ($LASTEXITCODE -ne 0) {
             gh release create $tag `
               --repo "${{ github.repository }}" `
               --target "${{ github.sha }}" `
-              --title "UniRemoteExam LAN v1.0.2" `
-              --notes "LAN version: the computer hosts the server and database, and Android connects over the same Wi-Fi without cloud hosting."
+              --title "UniRemoteExam LAN v1.0.3" `
+              --notes "LAN version: fixes Arabic font rendering and stores WebView2 data under LocalAppData. The computer hosts the server and database, and Android connects over the same Wi-Fi without cloud hosting."
           }
           gh release upload $tag `
             artifacts/windows/UniRemoteExam-LAN-Windows-Setup.exe `
