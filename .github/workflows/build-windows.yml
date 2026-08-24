@@ -98,8 +98,16 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           $tag = "lan-v1.0.3"
-          gh release view $tag --repo "${{ github.repository }}" 2>$null
-          if ($LASTEXITCODE -ne 0) {
+          $previousErrorActionPreference = $ErrorActionPreference
+          try {
+            $ErrorActionPreference = "SilentlyContinue"
+            gh release view $tag --repo "${{ github.repository }}" --json tagName 2>&1 | Out-Null
+            $releaseExitCode = $LASTEXITCODE
+          }
+          finally {
+            $ErrorActionPreference = $previousErrorActionPreference
+          }
+          if ($releaseExitCode -ne 0) {
             gh release create $tag `
               --repo "${{ github.repository }}" `
               --target "${{ github.sha }}" `
