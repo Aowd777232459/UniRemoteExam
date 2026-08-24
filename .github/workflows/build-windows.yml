@@ -104,7 +104,7 @@ jobs:
               --repo "${{ github.repository }}" `
               --target "${{ github.sha }}" `
               --title "UniRemoteExam LAN v1.0.2" `
-              --notes "نسخة الشبكة المحلية: الكمبيوتر هو الخادم وقاعدة البيانات، والجوال يتصل عبر شبكة Wi-Fi نفسها دون استضافة أو اشتراك."
+              --notes "LAN version: the computer hosts the server and database, and Android connects over the same Wi-Fi without cloud hosting."
           }
           gh release upload $tag `
             artifacts/windows/UniRemoteExam-LAN-Windows-Setup.exe `

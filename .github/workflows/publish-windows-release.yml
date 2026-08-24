@@ -1,0 +1,47 @@
+name: Publish Windows Release
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/publish-windows-release.yml"
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  publish-release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Download verified Windows files
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p windows-release
+          gh run download 32753346945 \
+            --repo "${{ github.repository }}" \
+            --name "UniRemoteExam-LAN-Windows-Installer" \
+            --dir windows-release
+          test -f windows-release/UniRemoteExam-LAN-Windows-Setup.exe
+          test -f windows-release/UniRemoteExam-LAN-Windows-Installer.zip
+
+      - name: Publish permanent download links
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="lan-v1.0.2"
+          if ! gh release view "$tag" --repo "${{ github.repository }}" >/dev/null 2>&1; then
+            gh release create "$tag" \
+              --repo "${{ github.repository }}" \
+              --target "${{ github.sha }}" \
+              --title "UniRemoteExam LAN v1.0.2" \
+              --notes "LAN version: the computer hosts the server and database, and Android connects over the same Wi-Fi without cloud hosting."
+          fi
+          gh release upload "$tag" \
+            windows-release/UniRemoteExam-LAN-Windows-Setup.exe \
+            windows-release/UniRemoteExam-LAN-Windows-Installer.zip \
+            --clobber \
+            --repo "${{ github.repository }}"
