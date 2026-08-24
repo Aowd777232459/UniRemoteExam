@@ -58,6 +58,6 @@ public partial class ExamAttempt
     [InverseProperty(nameof(ProctorEvent.Attempt))]
     public ICollection<ProctorEvent> ProctorEvents { get; set; } = new List<ProctorEvent>();
 
-    [InverseProperty(nameof(ManualScore.Attempt))]
+    [InverseProperty(nameof(global::UniRemoteExam.Data.ManualScore.Attempt))]
     public ICollection<ManualScore> ManualScores { get; set; } = new List<ManualScore>();
 }
