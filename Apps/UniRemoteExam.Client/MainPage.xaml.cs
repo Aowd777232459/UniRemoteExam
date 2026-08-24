@@ -106,7 +106,7 @@ public partial class MainPage : ContentPage
         }
         catch (HttpRequestException)
         {
-            ShowConnectionError("تعذر الوصول إلى الخادم. تأكد من صحة الرابط وشهادة HTTPS.");
+            ShowConnectionError("تعذر الوصول إلى الكمبيوتر. تأكد أن الجهازين على شبكة Wi-Fi نفسها وأن الخادم يعمل.");
         }
         catch
         {

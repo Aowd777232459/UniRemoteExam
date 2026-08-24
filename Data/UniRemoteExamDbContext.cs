@@ -30,6 +30,8 @@ public partial class UniRemoteExamDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        var utcNowSql = Database.IsSqlite() ? "CURRENT_TIMESTAMP" : "SYSUTCDATETIME()";
+
         modelBuilder.Entity<Department>(entity =>
         {
             entity.Property(e => e.IsActive).HasDefaultValue(true);
@@ -51,7 +53,7 @@ public partial class UniRemoteExamDbContext : DbContext
 
         modelBuilder.Entity<CourseEnrollment>(entity =>
         {
-            entity.Property(e => e.EnrolledAt).HasDefaultValueSql("SYSUTCDATETIME()");
+            entity.Property(e => e.EnrolledAt).HasDefaultValueSql(utcNowSql);
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.HasOne(e => e.Course).WithMany(e => e.Enrollments).HasForeignKey(e => e.CourseId).OnDelete(DeleteBehavior.Cascade);
             entity.HasOne(e => e.Student).WithMany(e => e.CourseEnrollments).HasForeignKey(e => e.StudentId).OnDelete(DeleteBehavior.Restrict);
@@ -60,7 +62,7 @@ public partial class UniRemoteExamDbContext : DbContext
         modelBuilder.Entity<AnswerKeyItem>(entity =>
         {
             entity.HasKey(e => new { e.ExamId, e.QuestionId });
-            entity.Property(e => e.UploadedAt).HasDefaultValueSql("SYSUTCDATETIME()");
+            entity.Property(e => e.UploadedAt).HasDefaultValueSql(utcNowSql);
             entity.HasOne(e => e.CorrectChoice).WithMany(e => e.AnswerKeyItems).HasForeignKey(e => e.CorrectChoiceId).OnDelete(DeleteBehavior.NoAction);
             entity.HasOne(e => e.Exam).WithMany(e => e.AnswerKeyItems).HasForeignKey(e => e.ExamId).OnDelete(DeleteBehavior.Cascade);
             entity.HasOne(e => e.Question).WithMany(e => e.AnswerKeyItems).HasForeignKey(e => e.QuestionId).OnDelete(DeleteBehavior.NoAction);
@@ -77,20 +79,20 @@ public partial class UniRemoteExamDbContext : DbContext
 
         modelBuilder.Entity<AuditLog>(entity =>
         {
-            entity.Property(e => e.CreatedAt).HasDefaultValueSql("SYSUTCDATETIME()");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql(utcNowSql);
             entity.HasOne(e => e.ActorUser).WithMany(e => e.AuditLogs).HasForeignKey(e => e.ActorUserId).OnDelete(DeleteBehavior.NoAction);
         });
 
         modelBuilder.Entity<EmailLog>(entity =>
         {
-            entity.Property(e => e.SentAt).HasDefaultValueSql("SYSUTCDATETIME()");
+            entity.Property(e => e.SentAt).HasDefaultValueSql(utcNowSql);
             entity.Property(e => e.Status).HasDefaultValue("Queued");
             entity.HasOne(e => e.User).WithMany(e => e.EmailLogs).HasForeignKey(e => e.UserId).OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<Exam>(entity =>
         {
-            entity.Property(e => e.CreatedAt).HasDefaultValueSql("SYSUTCDATETIME()");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql(utcNowSql);
             entity.Property(e => e.Status).HasDefaultValue("Draft");
             entity.Property(e => e.MaxAttempts).HasDefaultValue(1);
             entity.Property(e => e.DurationMinutes).HasDefaultValue(60);
@@ -110,7 +112,7 @@ public partial class UniRemoteExamDbContext : DbContext
 
         modelBuilder.Entity<ExamAttempt>(entity =>
         {
-            entity.Property(e => e.StartedAt).HasDefaultValueSql("SYSUTCDATETIME()");
+            entity.Property(e => e.StartedAt).HasDefaultValueSql(utcNowSql);
             entity.Property(e => e.Status).HasDefaultValue("Started");
             entity.HasIndex(e => new { e.ExamId, e.StudentId, e.Status });
             entity.HasIndex(e => new { e.ExamId, e.StudentId }).IsUnique().HasFilter("[Status] = 'Started'");
@@ -126,7 +128,7 @@ public partial class UniRemoteExamDbContext : DbContext
 
         modelBuilder.Entity<ExamPublishRequest>(entity =>
         {
-            entity.Property(e => e.RequestedAt).HasDefaultValueSql("SYSUTCDATETIME()");
+            entity.Property(e => e.RequestedAt).HasDefaultValueSql(utcNowSql);
             entity.Property(e => e.Status).HasDefaultValue("Pending");
             entity.HasOne(e => e.Exam).WithMany(e => e.ExamPublishRequests).HasForeignKey(e => e.ExamId).OnDelete(DeleteBehavior.Cascade);
             entity.HasOne(e => e.ReviewedByAdmin).WithMany(e => e.ExamPublishRequestReviewedByAdmins).HasForeignKey(e => e.ReviewedByAdminId).OnDelete(DeleteBehavior.NoAction);
@@ -136,7 +138,7 @@ public partial class UniRemoteExamDbContext : DbContext
 
         modelBuilder.Entity<ManualScore>(entity =>
         {
-            entity.Property(e => e.GradedAt).HasDefaultValueSql("SYSUTCDATETIME()");
+            entity.Property(e => e.GradedAt).HasDefaultValueSql(utcNowSql);
             entity.HasIndex(e => new { e.AttemptId, e.QuestionId }).IsUnique();
             entity.HasOne(e => e.Attempt).WithMany(e => e.ManualScores).HasForeignKey(e => e.AttemptId).OnDelete(DeleteBehavior.Cascade);
             entity.HasOne(e => e.GradedByControl).WithMany(e => e.ManualScores).HasForeignKey(e => e.GradedByControlId).OnDelete(DeleteBehavior.Restrict);
@@ -167,7 +169,7 @@ public partial class UniRemoteExamDbContext : DbContext
 
         modelBuilder.Entity<ProctorEvent>(entity =>
         {
-            entity.Property(e => e.CreatedAt).HasDefaultValueSql("SYSUTCDATETIME()");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql(utcNowSql);
             entity.HasOne(e => e.Attempt).WithMany(e => e.ProctorEvents).HasForeignKey(e => e.AttemptId).OnDelete(DeleteBehavior.Cascade);
             entity.HasOne(e => e.Question).WithMany(e => e.ProctorEvents).HasForeignKey(e => e.QuestionId).OnDelete(DeleteBehavior.NoAction);
             entity.HasOne(e => e.Student).WithMany(e => e.ProctorEvents).HasForeignKey(e => e.StudentId).OnDelete(DeleteBehavior.Restrict);
@@ -175,14 +177,14 @@ public partial class UniRemoteExamDbContext : DbContext
 
         modelBuilder.Entity<StudentNotice>(entity =>
         {
-            entity.Property(e => e.CreatedAt).HasDefaultValueSql("SYSUTCDATETIME()");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql(utcNowSql);
             entity.Property(e => e.IsActive).HasDefaultValue(true);
         });
 
         modelBuilder.Entity<StudentNoticeRead>(entity =>
         {
             entity.HasKey(e => new { e.NoticeId, e.StudentId });
-            entity.Property(e => e.ReadAt).HasDefaultValueSql("SYSUTCDATETIME()");
+            entity.Property(e => e.ReadAt).HasDefaultValueSql(utcNowSql);
             entity.HasOne(e => e.Notice).WithMany(e => e.StudentNoticeReads).HasForeignKey(e => e.NoticeId).OnDelete(DeleteBehavior.Cascade);
             entity.HasOne(e => e.Student).WithMany(e => e.StudentNoticeReads).HasForeignKey(e => e.StudentId).OnDelete(DeleteBehavior.Restrict);
         });
@@ -201,7 +203,7 @@ public partial class UniRemoteExamDbContext : DbContext
 
         modelBuilder.Entity<User>(entity =>
         {
-            entity.Property(e => e.CreatedAt).HasDefaultValueSql("SYSUTCDATETIME()");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql(utcNowSql);
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.FailedLoginCount).HasDefaultValue(0);
             entity.HasOne(e => e.Role).WithMany(e => e.Users).HasForeignKey(e => e.RoleId).OnDelete(DeleteBehavior.Restrict);

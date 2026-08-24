@@ -4,8 +4,17 @@ on:
   push:
     branches: [main]
     paths:
+      - "Areas/**"
       - "Apps/**"
+      - "Controllers/**"
+      - "Data/**"
       - "Installer/**"
+      - "Models/**"
+      - "Services/**"
+      - "Views/**"
+      - "wwwroot/**"
+      - "Program.cs"
+      - "UniRemoteExam.csproj"
       - ".github/workflows/build-windows.yml"
   workflow_dispatch:
 
@@ -31,7 +40,7 @@ jobs:
       - name: Restore Windows app
         run: dotnet restore Apps/UniRemoteExam.Client/UniRemoteExam.Client.csproj -p:TargetFramework=net10.0-windows10.0.19041.0
 
-      - name: Publish self-contained Windows app
+      - name: Publish self-contained Windows client
         run: >-
           dotnet publish Apps/UniRemoteExam.Client/UniRemoteExam.Client.csproj
           -f net10.0-windows10.0.19041.0
@@ -40,7 +49,15 @@ jobs:
           -p:RuntimeIdentifierOverride=win-x64
           -p:WindowsAppSDKSelfContained=true
           --self-contained true
-          -o artifacts/windows-publish
+          -o artifacts/windows-client-publish
+
+      - name: Publish self-contained LAN server
+        run: >-
+          dotnet publish UniRemoteExam.csproj
+          -c Release
+          -r win-x64
+          --self-contained true
+          -o artifacts/windows-server-publish
 
       - name: Install Inno Setup
         run: choco install innosetup --no-progress -y
@@ -50,15 +67,16 @@ jobs:
         run: |
           New-Item -ItemType Directory -Force -Path artifacts/windows | Out-Null
           & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" `
-            "/DPublishDir=$((Resolve-Path 'artifacts/windows-publish').Path)" `
+            "/DClientPublishDir=$((Resolve-Path 'artifacts/windows-client-publish').Path)" `
+            "/DServerPublishDir=$((Resolve-Path 'artifacts/windows-server-publish').Path)" `
             "/DOutputDir=$((Resolve-Path 'artifacts/windows').Path)" `
-            "/DAppVersion=1.0.0" `
+            "/DAppVersion=1.0.2" `
             "Installer/UniRemoteExam.iss"
 
       - name: Upload Windows installer
         uses: actions/upload-artifact@v4
         with:
-          name: UniRemoteExam-Windows-Installer
-          path: artifacts/windows/UniRemoteExam-Windows-Setup.exe
+          name: UniRemoteExam-LAN-Windows-Installer
+          path: artifacts/windows/UniRemoteExam-LAN-Windows-Setup.exe
           if-no-files-found: error
           retention-days: 30

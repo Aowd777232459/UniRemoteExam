@@ -31,6 +31,32 @@ jobs:
       - name: Publish server
         run: dotnet publish UniRemoteExam.csproj --configuration Release --no-build --output artifacts/server
 
+      - name: Test LAN server and embedded database
+        shell: bash
+        run: |
+          export UNIREMOTE_LAN_MODE=true
+          dotnet artifacts/server/UniRemoteExam.dll > lan-server.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+
+          ready=false
+          for attempt in $(seq 1 40); do
+            if curl --fail --silent http://127.0.0.1:5113/health > health.json; then
+              ready=true
+              break
+            fi
+            sleep 0.5
+          done
+
+          if test "$ready" != true; then
+            cat lan-server.log
+            exit 1
+          fi
+
+          grep '"status":"healthy"' health.json
+          grep '"database":"connected"' health.json
+          curl --fail --silent http://127.0.0.1:5113/ | grep 'نظام الاختبارات'
+
       - name: Upload server package
         uses: actions/upload-artifact@v4
         with:

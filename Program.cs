@@ -8,6 +8,14 @@ using UniRemoteExam.Data;
 using UniRemoteExam.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+var lanMode = builder.Configuration.GetValue<bool>("LanMode")
+    || string.Equals(
+        Environment.GetEnvironmentVariable("UNIREMOTE_LAN_MODE"),
+        "true",
+        StringComparison.OrdinalIgnoreCase);
+
+if (lanMode)
+    builder.WebHost.UseUrls("http://0.0.0.0:5113");
 
 builder.Services.AddControllersWithViews(options =>
 {
@@ -29,15 +37,28 @@ builder.Services.AddRateLimiter(options =>
             }));
 });
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? throw new InvalidOperationException("ConnectionStrings:DefaultConnection غير موجود في الإعدادات.");
+if (lanMode)
+{
+    var dataDirectory = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+        "UniRemoteExam");
+    Directory.CreateDirectory(dataDirectory);
+    var databasePath = Path.Combine(dataDirectory, "UniRemoteExam-LAN.db");
+    builder.Services.AddDbContext<UniRemoteExamDbContext>(options =>
+        options.UseSqlite($"Data Source={databasePath};Cache=Shared"));
+}
+else
+{
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+        ?? throw new InvalidOperationException("ConnectionStrings:DefaultConnection غير موجود في الإعدادات.");
 
-builder.Services.AddDbContext<UniRemoteExamDbContext>(options =>
-    options.UseSqlServer(connectionString, sql =>
-    {
-        sql.EnableRetryOnFailure();
-        sql.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
-    }));
+    builder.Services.AddDbContext<UniRemoteExamDbContext>(options =>
+        options.UseSqlServer(connectionString, sql =>
+        {
+            sql.EnableRetryOnFailure();
+            sql.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
+        }));
+}
 builder.Services.AddScoped<SmtpEmailSender>();
 builder.Services.AddScoped<PasswordService>();
 builder.Services.AddScoped<ScoreCalculator>();
@@ -50,7 +71,7 @@ builder.Services.AddSession(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
     options.Cookie.SameSite = SameSiteMode.Lax;
-    options.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
+    options.Cookie.SecurePolicy = builder.Environment.IsDevelopment() || lanMode
         ? CookieSecurePolicy.SameAsRequest
         : CookieSecurePolicy.Always;
 });
@@ -72,17 +93,26 @@ app.Use(async (context, next) =>
     await next();
 });
 
-if (!app.Environment.IsDevelopment())
+if (!app.Environment.IsDevelopment() && !lanMode)
 {
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+if (!lanMode)
+    app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 app.UseSession();
 app.UseRateLimiter();
+
+if (lanMode)
+{
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<UniRemoteExamDbContext>();
+    var passwords = scope.ServiceProvider.GetRequiredService<PasswordService>();
+    await LanDatabaseInitializer.InitializeAsync(db, passwords);
+}
 
 app.MapGet("/health", async (UniRemoteExamDbContext db, CancellationToken cancellationToken) =>
 {
