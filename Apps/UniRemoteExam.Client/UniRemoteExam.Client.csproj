@@ -24,4 +24,8 @@
     <MauiIcon Include="Resources/AppIcon/appicon.svg" ForegroundFile="Resources/AppIcon/appiconfg.svg" Color="#073B31" />
     <MauiSplashScreen Include="Resources/Splash/splash.svg" Color="#073B31" BaseSize="256,256" />
   </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Maui.Controls" Version="10.0.20" />
+  </ItemGroup>
 </Project>

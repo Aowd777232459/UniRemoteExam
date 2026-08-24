@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Logging;
 using UniRemoteExam.Client.Services;
 
 namespace UniRemoteExam.Client;
@@ -12,10 +11,6 @@ public static class MauiProgram
 
         builder.Services.AddSingleton<ServerEndpointStore>();
         builder.Services.AddTransient<MainPage>();
-
-#if DEBUG
-        builder.Logging.AddDebug();
-#endif
 
         return builder.Build();
     }
