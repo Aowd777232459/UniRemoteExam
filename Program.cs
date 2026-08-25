@@ -13,9 +13,22 @@ var lanMode = builder.Configuration.GetValue<bool>("LanMode")
         Environment.GetEnvironmentVariable("UNIREMOTE_LAN_MODE"),
         "true",
         StringComparison.OrdinalIgnoreCase);
+var cloudDemoMode = builder.Configuration.GetValue<bool>("CloudDemoMode")
+    || string.Equals(
+        Environment.GetEnvironmentVariable("UNIREMOTE_CLOUD_DEMO_MODE"),
+        "true",
+        StringComparison.OrdinalIgnoreCase);
 
 if (lanMode)
+{
     builder.WebHost.UseUrls("http://0.0.0.0:5113");
+}
+else if (cloudDemoMode)
+{
+    var port = Environment.GetEnvironmentVariable("PORT");
+    if (string.IsNullOrWhiteSpace(port)) port = "8080";
+    builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+}
 
 builder.Services.AddControllersWithViews(options =>
 {
@@ -37,13 +50,26 @@ builder.Services.AddRateLimiter(options =>
             }));
 });
 
-if (lanMode)
+if (lanMode || cloudDemoMode)
 {
-    var dataDirectory = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-        "UniRemoteExam");
-    Directory.CreateDirectory(dataDirectory);
-    var databasePath = Path.Combine(dataDirectory, "UniRemoteExam-LAN.db");
+    string databasePath;
+    if (lanMode)
+    {
+        var dataDirectory = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "UniRemoteExam");
+        Directory.CreateDirectory(dataDirectory);
+        databasePath = Path.Combine(dataDirectory, "UniRemoteExam-LAN.db");
+    }
+    else
+    {
+        databasePath = Environment.GetEnvironmentVariable("UNIREMOTE_SQLITE_PATH")
+            ?? Path.Combine(Path.GetTempPath(), "UniRemoteExam-CloudDemo.db");
+        var directory = Path.GetDirectoryName(databasePath);
+        if (!string.IsNullOrWhiteSpace(directory))
+            Directory.CreateDirectory(directory);
+    }
+
     builder.Services.AddDbContext<UniRemoteExamDbContext>(options =>
         options.UseSqlite($"Data Source={databasePath};Cache=Shared"));
 }
@@ -99,14 +125,14 @@ if (!app.Environment.IsDevelopment() && !lanMode)
     app.UseHsts();
 }
 
-if (!lanMode)
+if (!lanMode && !cloudDemoMode)
     app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 app.UseSession();
 app.UseRateLimiter();
 
-if (lanMode)
+if (lanMode || cloudDemoMode)
 {
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<UniRemoteExamDbContext>();
