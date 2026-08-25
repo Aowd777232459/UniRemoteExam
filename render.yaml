@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: uniremoteexam
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: UNIREMOTE_CLOUD_DEMO_MODE
+        value: "true"
